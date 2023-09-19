@@ -7,6 +7,7 @@ from utils.base import Sprite
 
 if TYPE_CHECKING:
     from pygame.sprite import _Group
+    from utils.base import Coordinate
 
 
 class Button(Sprite):
@@ -14,7 +15,7 @@ class Button(Sprite):
         self,
         image: Surface | str,
         on_press: function,
-        pos: tuple[int, int] = None,
+        pos: Coordinate = None,
         *groups: _Group,
     ) -> None:
         if isinstance(image, str):

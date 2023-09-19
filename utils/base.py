@@ -34,7 +34,7 @@ class Sprite(GameObject):
     def __init__(
         self,
         image: Surface,
-        pos: tuple[int, int] | None = None,
+        pos: Coordinate | None = None,
         height: int = None,
         width: int = None,
         rotation: int = 0,
@@ -45,7 +45,7 @@ class Sprite(GameObject):
         *groups: _Group,
     ) -> None:
         super().__init__(*groups)
-        self._pos: tuple[int, int] = pos or (0, 0)
+        self._pos: Coordinate = pos or Coordinate(0, 0)
         self._image: Surface = image
         self._height: int | None = height
         self._width: int | None = width
@@ -63,11 +63,11 @@ class Sprite(GameObject):
         self.on_right_click: function = on_right_click
 
     @property
-    def pos(self) -> tuple[int, int]:
+    def pos(self) -> Coordinate:
         return self._pos
 
     @pos.setter
-    def pos(self, value: tuple[int, int]):
+    def pos(self, value: Coordinate):
         if value != self._pos:
             self._pos = value
             self._rect_needs_update = True
@@ -153,7 +153,7 @@ class Sprite(GameObject):
             centerx=int(self.pos[0]), centery=int(self.pos[1])
         )
 
-    def touches(self, pos: tuple[int, int]) -> bool:
+    def touches(self, pos: Coordinate) -> bool:
         if self._rect == None:
             self.update_rect()
         return self._rect.collidepoint(pos)
@@ -181,3 +181,75 @@ class Sprite(GameObject):
 
     def handle_event(self, event: Event) -> None:
         self.check_clicks(event)
+
+
+class Coordinate:
+    def __init__(self, x, y) -> None:
+        self.x = x
+        self.y = y
+
+    def __getitem__(self, index):
+        return (self.x, self.y)[index]
+
+    def __add__(self, other):
+        if isinstance(other, int):
+            return Coordinate(self.x + other, self.y + other)
+        if isinstance(other, Coordinate):
+            return Coordinate(self.x + other.x, self.y + other.y)
+        else:
+            return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, int):
+            return Coordinate(self.x - other, self.y - other)
+        if isinstance(other, Coordinate):
+            return Coordinate(self.x - other.x, self.y - other.y)
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, int):
+            self.x += other
+            self.y += other
+        if isinstance(other, Coordinate):
+            self.x += other.x
+            self.y += other.y
+        else:
+            return NotImplemented
+
+    def __isub__(self, other):
+        if isinstance(other, int):
+            self.x -= other
+            self.y -= other
+        if isinstance(other, Coordinate):
+            self.x -= other.x
+            self.y -= other.y
+        else:
+            return NotImplemented
+
+    def __mul__(self, other):
+        if isinstance(other, int):
+            return Coordinate(self.x * other, self.y * other)
+        else:
+            return NotImplemented
+
+    def __rmul__(self, other):
+        if isinstance(other, int):
+            return Coordinate(other * self.x, other * self.y)
+        else:
+            return NotImplemented
+
+    def __neg__(self):
+        return Coordinate(-self.x, -self.y)
+
+    def __abs__(self):
+        return self.x**2 + self.y**2
+
+    def __invert__(self):
+        return Coordinate(self.y, self.x)
+
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y})"
+
+    def __repr__(self) -> str:
+        return f"Coordinate({self.x}, {self.y})"
