@@ -28,6 +28,24 @@ class GameObject(BaseSprite, ABC):
         pass
 
 
+class ParentObject(GameObject, ABC):
+    def __init__(self, *groups: _Group) -> None:
+        super().__init__(groups)
+        self.children: list[GameObject] = []
+
+    def handle_event(self, event: Event) -> None:
+        for child in self.children:
+            child.handle_event(event)
+
+    def update(self) -> None:
+        for child in self.children:
+            child.update()
+
+    def draw(self, surface: Surface) -> None:
+        for child in self.children:
+            child.draw(surface)
+
+
 class Sprite(GameObject, ABC):
     def __init__(
         self,
