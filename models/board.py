@@ -29,6 +29,7 @@ class ChessBoard:
 
 class ChessSquare:
     def __init__(self, color: SquareColor, coords: Coordinate) -> None:
+        self.piece: ChessPiece = None
         self.color: SquareColor = color
         self.coords: Coordinate = coords
 
