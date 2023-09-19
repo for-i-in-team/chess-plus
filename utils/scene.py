@@ -5,8 +5,7 @@ if TYPE_CHECKING:
     from utils.base import GameObject
 
 
-@ABC
-class Scene:
+class Scene(ABC):
     def __init__(self) -> None:
         self.objects: list[GameObject] = []
 

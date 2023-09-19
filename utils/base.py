@@ -14,8 +14,7 @@ LEFTMOUSE = 1
 RIGHTMOUSE = 3
 
 
-@ABC
-class GameObject(BaseSprite):
+class GameObject(BaseSprite, ABC):
     def handle_event(self, event: Event) -> None:
         "Base function for handling events, will simply pass unless overridden by a child class"
         pass
@@ -29,8 +28,7 @@ class GameObject(BaseSprite):
         pass
 
 
-@ABC
-class Sprite(GameObject):
+class Sprite(GameObject, ABC):
     def __init__(
         self,
         image: Surface,
