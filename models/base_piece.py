@@ -2,9 +2,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod, abstractproperty
 from typing import TYPE_CHECKING
 
+from utils.base import Coordinate
+
 if TYPE_CHECKING:
     from models.board import ChessSquare, ChessBoard
-    from utils.base import Coordinate
 
 
 class PieceColor(ABC):
@@ -32,7 +33,7 @@ class White(PieceColor):
 
     @property
     def move_direction(self) -> Coordinate:
-        return Coordinate(1, 0)
+        return Coordinate(0, 1)
 
 
 class Black(PieceColor):
@@ -46,7 +47,7 @@ class Black(PieceColor):
 
     @property
     def move_direction(self) -> Coordinate:
-        return Coordinate(-1, 0)
+        return Coordinate(0, -1)
 
 
 class ChessPiece(ABC):
