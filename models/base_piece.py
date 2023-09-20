@@ -55,6 +55,10 @@ class ChessPiece(ABC):
         self.color: PieceColor = color
 
     @abstractproperty
+    def name(self) -> str:
+        pass
+
+    @abstractproperty
     def color(self) -> PieceColor:
         pass
 
