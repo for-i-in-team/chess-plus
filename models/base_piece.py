@@ -7,8 +7,7 @@ if TYPE_CHECKING:
     from utils.base import Coordinate
 
 
-@ABC
-class PieceColor:
+class PieceColor(ABC):
     @abstractproperty
     def color(self) -> str:
         pass
@@ -38,8 +37,7 @@ class Black(PieceColor):
         return Coordinate(-1, 0)
 
 
-@ABC
-class ChessPiece:
+class ChessPiece(ABC):
     def __init__(self, board: ChessBoard, color: PieceColor) -> None:
         self.board: ChessBoard = board
         self.color: PieceColor = color
