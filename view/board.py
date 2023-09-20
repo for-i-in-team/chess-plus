@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 import pygame
 
 from utils.base import ParentObject, Sprite, Coordinate
+from view.piece import PieceView
+from models.base_piece import ChessPiece
 
 if TYPE_CHECKING:
     from models.board import ChessBoard, ChessSquare
@@ -42,6 +44,25 @@ class ChessBoardView(ParentObject):
 class ChessSquareView(Sprite):
     def __init__(self, square: ChessSquare, size: int, pos: Coordinate) -> None:
         self.square: ChessSquare = square
-        image = pygame.Surface((size, size))
-        image.fill(square.color.value)
-        super().__init__(image, pos)
+        self.size = size
+        self.piece_view: PieceView | None = (
+            PieceView(square.piece, (int(size / 2), int(size / 2)), size * 8 / 10)
+            if square.piece is not None
+            else None
+        )
+        super().__init__(self.get_image(), pos)
+
+    def set_piece(self, piece: ChessPiece):
+        if self.piece_view is None or piece != self.piece_view.piece:
+            if piece is None:
+                self.piece_view = None
+            else:
+                self.piece_view = PieceView(piece, self.pos, self.size)
+        self.image = self.get_image()
+
+    def get_image(self):
+        image = pygame.Surface((self.size, self.size))
+        image.fill(self.square.color.value)
+        if self.piece_view is not None:
+            self.piece_view.draw(image)
+        return image
