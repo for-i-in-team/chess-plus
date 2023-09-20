@@ -1,5 +1,5 @@
+from events import SceneChangeEvent
 from utils.scene import Scene
-import events
 from scenes.play_chess import PlayChess
 from utils.interface import Button
 
@@ -10,4 +10,4 @@ class MainMenu(Scene):
         self.objects.append(Button("Play", self.play, pos=(400, 300)))
 
     def play(self):
-        events.scene_change(PlayChess())
+        SceneChangeEvent(PlayChess()).fire()
