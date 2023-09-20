@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from events import SCENECHANGEEVENT
+from event_types import SCENECHANGEEVENT
 
 if TYPE_CHECKING:
     from utils.scene import Scene

@@ -1,4 +1,4 @@
-from events import SceneChangeEvent
+from game_events import SceneChangeEvent
 from utils.scene import Scene
 from scenes.play_chess import PlayChess
 from utils.interface import Button
