@@ -26,6 +26,13 @@ class ChessBoard:
             self.size = Coordinate(len(squares), max(len(row) for row in squares))
             self.squares: list[list[ChessSquare]] = squares
 
+    def has_coord(self, coord: Coordinate) -> bool:
+        return (
+            0 <= coord.x < self.size.x
+            and 0 <= coord.y < self.size.y
+            and self.squares[coord.x][coord.y] is not None
+        )
+
 
 class ChessSquare:
     def __init__(self, color: SquareColor, coords: Coordinate) -> None:
