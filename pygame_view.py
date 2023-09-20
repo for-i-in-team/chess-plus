@@ -12,11 +12,14 @@ if TYPE_CHECKING:
 
 
 class PygameView:
-    def __init__(self, scene: Scene):
+    def __init__(self, scene: Scene = None):
         self.screen: Surface = pygame.display.set_mode((1280, 720))
         self.clock: Clock = pygame.time.Clock()
         self.fps: int = 60
         self.scene: Scene = scene
+
+    def set_scene(self, scene: Scene) -> None:
+        self.scene = scene
 
     def loop(self):
         while True:
