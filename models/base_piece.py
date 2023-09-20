@@ -9,7 +9,11 @@ if TYPE_CHECKING:
 
 class PieceColor(ABC):
     @abstractproperty
-    def color(self) -> str:
+    def color_name(self) -> str:
+        pass
+
+    @abstractproperty
+    def rgb(self) -> tuple[int, int, int]:
         pass
 
     @abstractproperty
@@ -19,8 +23,12 @@ class PieceColor(ABC):
 
 class White(PieceColor):
     @property
-    def color(self) -> str:
+    def color_name(self) -> str:
         return "white"
+
+    @property
+    def rgb(self) -> tuple[int, int, int]:
+        return (255, 255, 255)
 
     @property
     def move_direction(self) -> Coordinate:
@@ -29,8 +37,12 @@ class White(PieceColor):
 
 class Black(PieceColor):
     @property
-    def color(self) -> str:
+    def color_name(self) -> str:
         return "black"
+
+    @property
+    def rgb(self) -> tuple[int, int, int]:
+        return (0, 0, 0)
 
     @property
     def move_direction(self) -> Coordinate:
