@@ -30,7 +30,7 @@ class GameObject(BaseSprite, ABC):
 
 class ParentObject(GameObject, ABC):
     def __init__(self, *groups: _Group) -> None:
-        super().__init__(groups)
+        super().__init__(*groups)
         self.children: list[GameObject] = []
 
     def handle_event(self, event: Event) -> None:
@@ -54,7 +54,7 @@ class Sprite(GameObject, ABC):
         height: int = None,
         width: int = None,
         rotation: int = 0,
-        transparency: float = 1,
+        transparency: float = 255,
         flip: bool = False,
         on_left_click: callable[Event] = None,
         on_right_click: callable[Event] = None,
@@ -140,7 +140,7 @@ class Sprite(GameObject, ABC):
 
     def transform_image(self) -> None:
         new_image = self._image.copy()
-        if self._transparency != 1:
+        if self._transparency != 255:
             new_image.set_alpha(self._transparency)
         new_image = self.scale_image(new_image)
         if self._rotation != 0:
@@ -163,6 +163,8 @@ class Sprite(GameObject, ABC):
 
         if width != new_image.get_width() or height != new_image.get_height():
             return transform.scale(new_image, (width, height))
+        else:
+            return new_image
 
     def update_rect(self) -> None:
         self._rect = self._transformed_image.get_rect(
