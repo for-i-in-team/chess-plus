@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod, abstractproperty
 from typing import TYPE_CHECKING
 
+from game_events import ChessPieceMoveEvent, ChessPieceTakeEvent
 from utils.base import Coordinate
 
 if TYPE_CHECKING:
@@ -76,17 +77,36 @@ class ChessPiece(ABC):
     def point_value(self) -> int:
         pass
 
-    @abstractmethod
-    def move(self, current_square: ChessSquare, new_square: ChessBoard):
-        pass
+    def move(self, current_square: ChessSquare, new_square: ChessSquare):
+        if new_square in self.get_valid_moves(current_square):
+            self._position = new_square
+            current_square.piece = None
+            new_square.piece = self
+            ChessPieceMoveEvent(current_square, new_square, self).fire()
+        else:
+            raise InvalidMoveError(
+                f"Invalid move {current_square} -> {new_square}. Valid moves are {self.get_valid_moves(current_square)}"
+            )
 
     @abstractmethod
     def get_valid_moves(self, current_square: ChessSquare):
         pass
 
-    @abstractmethod
-    def take(self, current_square: ChessSquare, new_square: ChessBoard):
-        pass
+    def take(self, current_square: ChessSquare, new_square: ChessSquare):
+        if new_square in self.get_valid_takes(current_square):
+            taken_piece = new_square.piece
+            if taken_piece is None:
+                raise InvalidMoveError(
+                    f"Invalid take {current_square} -> {new_square}, no piece at destination! Valid takes are {self.get_valid_takes(current_square)}"
+                )
+            self._position = new_square
+            current_square.piece = None
+            new_square.piece = self
+            ChessPieceTakeEvent(current_square, new_square, self, taken_piece).fire()
+        else:
+            raise InvalidMoveError(
+                f"Invalid take {current_square} -> {new_square}. Valid takes are {self.get_valid_moves(current_square)}"
+            )
 
     @abstractmethod
     def get_valid_takes(self, current_square: ChessSquare):
