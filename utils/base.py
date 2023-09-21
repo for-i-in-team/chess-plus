@@ -79,6 +79,16 @@ class Sprite(GameObject, ABC):
         self.on_right_click: function = on_right_click
 
     @property
+    def image(self) -> Surface:
+        return self._image
+
+    @image.setter
+    def image(self, value: Surface):
+        if value != self._image:
+            self._image = value
+            self._image_needs_transform = True
+
+    @property
     def pos(self) -> Coordinate:
         return self._pos
 
