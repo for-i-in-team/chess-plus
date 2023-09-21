@@ -11,34 +11,59 @@ if TYPE_CHECKING:
 
 
 class SquareSelection(ParentObject):
-    def __init__(self, board: ChessBoardView, square: ChessSquareView, *groups) -> None:
+    def __init__(
+        self, board: ChessBoardView, square: ChessSquareView | None, *groups
+    ) -> None:
         self.board: ChessBoardView = board
-        self.square: ChessSquareView = square
         super().__init__(*groups)
+        self.set_square(square)
+
+    def set_square(self, square: ChessSquareView | None):
+        if square is None:
+            self.square = None
+            self.move_squares: list[ChessSquare] = []
+            self.take_squares: list[ChessSquare] = []
+            self.children = []
+            return
+
+        if square.square in self.move_squares:
+            self.square.square.piece.move(self.square.square, square.square)
+        if square.square in self.take_squares:
+            self.square.square.piece.take(self.square.square, square.square)
+
+        self.square: ChessSquareView | None = square
+
+        piece = square.square.piece
+        self.move_squares: list[ChessSquare] = (
+            [] if piece is None else piece.get_valid_moves(square.square)
+        )
+        self.take_squares: list[ChessSquare] = (
+            [] if piece is None else piece.get_valid_takes(square.square)
+        )
+
         self.set_highlights()
 
     def set_highlights(self):
+        self.children = []
         self.children.append(
             SquareHighlight((0, 255, 0), self.square.pos, self.square.size)
         )
-        piece = self.square.square.piece
-        if piece is not None:
-            for square in piece.get_valid_moves(self.square.square):
-                self.children.append(
-                    SquareHighlight(
-                        (0, 0, 255),
-                        self.get_square_pos(square),
-                        self.square.size,
-                    )
+        for square in self.move_squares:
+            self.children.append(
+                SquareHighlight(
+                    (0, 0, 255),
+                    self.get_square_pos(square),
+                    self.square.size,
                 )
-            for square in piece.get_valid_takes(self.square.square):
-                self.children.append(
-                    SquareHighlight(
-                        (255, 0, 0),
-                        self.get_square_pos(square),
-                        self.square.size,
-                    )
+            )
+        for square in self.take_squares:
+            self.children.append(
+                SquareHighlight(
+                    (255, 0, 0),
+                    self.get_square_pos(square),
+                    self.square.size,
                 )
+            )
 
     def get_square_pos(self, square: ChessSquare):
         return (

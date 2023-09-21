@@ -2,9 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pygame
+from pygame import Surface
 from pygame.event import Event
 
-from event_types import CHESSSQUARECLICKEVENT
+from event_types import CHESSSQUARECLICKEVENT, CHESSPIECEMOVEEVENT, CHESSPIECETAKEEVENT
 from game_events import ChessSquareClickEvent
 from utils.base import ParentObject, Sprite, Coordinate
 from view.piece import PieceView
@@ -24,7 +25,7 @@ class ChessBoardView(ParentObject):
         *groups,
     ) -> None:
         super().__init__(groups)
-        self.square_selection: SquareSelection | None = None
+        self.square_selection: SquareSelection | None = SquareSelection(self, None)
         self.board: ChessBoard = board
         self.pos: Coordinate = pos
         if size is None:
@@ -51,38 +52,39 @@ class ChessBoardView(ParentObject):
             self.pos.x - int(self.size.x / 2), self.pos.y - int(self.size.y / 2)
         )
 
-    def spawn_selection_display(self, square: ChessSquareView):
-        if self.square_selection is not None:
-            self.children.remove(self.square_selection)
-            self.square_selection = None
-        self.square_selection = SquareSelection(self, square)
-        self.children.append(self.square_selection)
+    def handle_square_click(self, square: ChessSquareView):
+        self.square_selection.set_square(square)
 
     def handle_event(self, event: Event) -> None:
         if event.type == CHESSSQUARECLICKEVENT:
-            self.spawn_selection_display(event.square)
+            self.handle_square_click(event.square)
         return super().handle_event(event)
+
+    def draw(self, surface: Surface) -> None:
+        super().draw(surface)
+        self.square_selection.draw(surface)
 
 
 class ChessSquareView(Sprite):
     def __init__(self, square: ChessSquare, size: int, pos: Coordinate) -> None:
         self.square: ChessSquare = square
-        self.size = size
-        self.piece_view: PieceView | None = (
-            PieceView(square.piece, (int(size / 2), int(size / 2)), size * 8 / 10)
-            if square.piece is not None
-            else None
-        )
+        self.size: Coordinate = size
+        self.piece_view: PieceView | None = None
         super().__init__(
             self.get_image(), pos, on_left_click=ChessSquareClickEvent(self).fire
         )
+        self.set_piece(self.square.piece)
 
     def set_piece(self, piece: ChessPiece):
         if self.piece_view is None or piece != self.piece_view.piece:
             if piece is None:
                 self.piece_view = None
             else:
-                self.piece_view = PieceView(piece, self.pos, self.size)
+                self.piece_view = PieceView(
+                    self.square.piece,
+                    (int(self.size / 2), int(self.size / 2)),
+                    self.size * 8 / 10,
+                )
         self.image = self.get_image()
 
     def get_image(self):
@@ -91,3 +93,22 @@ class ChessSquareView(Sprite):
         if self.piece_view is not None:
             self.piece_view.draw(image)
         return image
+
+    def handle_event(self, event: Event) -> None:
+        if event.type == CHESSPIECEMOVEEVENT:
+            if event.old_square == self.square:
+                self.set_piece(None)
+            if event.new_square == self.square:
+                self.set_piece(event.new_square.piece)
+        if event.type == CHESSPIECETAKEEVENT:
+            if event.old_square == self.square:
+                self.set_piece(None)
+            if event.new_square == self.square:
+                self.set_piece(event.new_square.piece)
+            if (
+                self.piece_view is not None
+                and event.taken_piece == self.piece_view.piece
+            ):
+                self.set_piece(None)
+
+        return super().handle_event(event)
