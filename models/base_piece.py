@@ -21,6 +21,11 @@ class PieceColor(ABC):
     def move_direction(self) -> Coordinate:
         pass
 
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, PieceColor):
+            return self.color_name == __value.color_name
+        return super().__eq__(__value)
+
 
 class White(PieceColor):
     @property
