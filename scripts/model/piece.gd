@@ -6,6 +6,8 @@ class PieceColor:
     var name : String
     var color : Color
     var move_direction : Vector2
+    func get_perpendicular_direction():
+        return Vector2(move_direction.y, move_direction.x)
 
 
 class White:
@@ -27,22 +29,22 @@ var name : String
 var color : PieceColor
 var point_value : float
 
-func move(current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-    assert( target_square in get_valid_moves(current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
+func move(board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
+    assert( target_square in get_valid_moves(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
     current_square.piece = null
     target_square.piece = self
-    return true
 
-func get_valid_moves(current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
-    return [current_square]
+func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
+    assert(false, "get_valid_moves not implemented " + current_square.to_string() + board.to_string())
+    return []
 
-func take(current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-    assert( target_square in get_valid_takes(current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
+func take(board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
+    assert( target_square in get_valid_takes(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
     current_square.piece = null
     target_square.piece = self
-    return true
 
-func get_valid_takes(current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
+func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
+    assert(false, "get_valid_takes not implemented " + current_square.to_string() + board.to_string())
     return [current_square]
 
 func _to_string():
