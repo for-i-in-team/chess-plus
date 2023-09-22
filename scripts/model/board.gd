@@ -9,6 +9,12 @@ func _init(board_size:Vector2):
     for i in range(board_size.y):
         size = board_size
         board.append(BoardRow.new(i,size.x as int))
+
+func get_square(coordinates:Vector2):
+    if coordinates.x < 0 or coordinates.x >= size.x or coordinates.y < 0 or coordinates.y >= size.y:
+        return null
+    else:
+        return board[coordinates.y as int].row[coordinates.x as int]
 		
 
 class BoardRow:
