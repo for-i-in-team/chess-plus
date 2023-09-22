@@ -8,8 +8,8 @@ var board :ChessBoard
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	board = ChessBoard.new(board_size)
-	for row in range(len(board.board)):
-		for col in range(len(board.board[row].row)):
-			var square:ChessSquareView = chess_square_node.instantiate()
-			square.init(board.board[row].row[col],Vector2(col, row))
-			add_child(square)
+	for row in board.board:
+		for square in row.row:
+			var square_view:ChessSquareView = chess_square_node.instantiate()
+			square_view.init(square)
+			add_child(square_view)

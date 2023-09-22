@@ -4,9 +4,9 @@ extends Sprite2D
 
 
 var color:ChessBoard.SquareColor
-var square : ChessBoard.ChessSquare
+var square : ChessBoard.Square
 
-func init(chess_square:ChessBoard.ChessSquare, coords : Vector2):
+func init(chess_square:ChessBoard.Square):
 	square = chess_square
 	modulate = square.color.color
-	position = coords * texture.get_width()*scale
+	position = square.coordinates * texture.get_width()*scale

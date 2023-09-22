@@ -12,18 +12,23 @@ func _init(board_size:Vector2):
 		
 
 class BoardRow:
-    var row:Array[ChessSquare]
+    var row:Array[Square]
     func _init(row_num:int, row_length:int, ):
         for i in range(row_length):
             var color : ChessBoard.SquareColor = (ChessBoard.Black.new() as ChessBoard.SquareColor) if (i+row_num)%2 == 0 else ChessBoard.White.new()
-            row.append(ChessSquare.new(color))
+            row.append(Square.new(color, Vector2(i,row_num)))
 
-class ChessSquare:
+class Square:
     var color:ChessBoard.SquareColor
-    var piece
+    var coordinates : Vector2
+    var piece : ChessPiece
 
-    func _init( square_color:ChessBoard.SquareColor):
+    func _init( square_color:ChessBoard.SquareColor, coord : Vector2):
         color  = square_color
+        coordinates = coord
+
+    func _to_string():
+        return "Square: (" + (coordinates.x as String) + "," + (coordinates.y as String) + ") " + piece.to_string()
 
 
 class SquareColor:
