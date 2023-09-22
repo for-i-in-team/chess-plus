@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://02d2wh5inwjg"]
+
+[ext_resource type="Texture2D" uid="uid://b747vyu1rfuoo" path="res://resources/pixel.png" id="1_fxyn7"]
+[ext_resource type="Script" path="res://scripts/view/chess_square.gd" id="2_vx2cq"]
+
+[node name="ChessSquare" type="Sprite2D"]
+scale = Vector2(100, 100)
+texture = ExtResource("1_fxyn7")
+script = ExtResource("2_vx2cq")
