@@ -5,6 +5,12 @@ class_name ChessBoard
 
 
 
+class ChessSquare:
+    var color:ChessBoard.SquareColor
+    var piece
+
+    func _init( square_color:ChessBoard.SquareColor):
+        color  = square_color
 
 
 class SquareColor:

@@ -1,3 +1,4 @@
+class_name ChessBoardView
 extends Node2D
 
 @export var chess_square_node : PackedScene
@@ -5,15 +6,12 @@ extends Node2D
 var board : Array[BoardRow] = []
 
 class BoardRow:
-	var row:Array[ChessSquare]
+	var row:Array[ChessSquareView]
 	func _init(row_num:int, board_size:Vector2, chess_square_node:PackedScene, ):
 		for i in range(board_size.x):
 			var color : ChessBoard.SquareColor = (ChessBoard.Black.new() as ChessBoard.SquareColor) if (i+row_num)%2 == 0 else ChessBoard.White.new()
-			print("true_val" if (i+row_num)%2 == 0 else "false_val")
-			print((i+row_num)%2 == 0 )
-			print(color.color)
-			var square:ChessSquare = chess_square_node.instantiate()
-			square.init(Vector2(i,row_num), color)
+			var square:ChessSquareView = chess_square_node.instantiate()
+			square.init(ChessBoard.ChessSquare.new(color),Vector2(i,row_num))
 			row.append(square)
 
 # Called when the node enters the scene tree for the first time.
