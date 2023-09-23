@@ -8,7 +8,7 @@ class PieceColor:
     var move_direction : Vector2
 
     static var white = PieceColor.new("White", Color.WHITE, Vector2(0, 1))
-    static var black = PieceColor.new("Black", Color.BLACK, Vector2(0, -1))
+    static var black = PieceColor.new("Black", Color(0.13,0.14,0.18), Vector2(0, -1))
 
     func _init(_name, _color, _move_direction):
         name = _name
