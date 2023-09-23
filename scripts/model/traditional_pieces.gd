@@ -113,6 +113,32 @@ class Bishop:
 		return valid
 
 
+class Knight:
+	extends ChessPiece
+
+	const KNIGHT_DIRECTIONS = [Vector2(1,2), Vector2(-1,2), Vector2(1,-2), Vector2(-1,-2), Vector2(2,1), Vector2(-2,1), Vector2(2,-1), Vector2(-2,-1)]
+
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("Knight", _color, 3)
+
+
+	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
+		var valid : Array[ChessBoard.Square] = []
+		for direction in KNIGHT_DIRECTIONS:
+			var square = board.get_square(current_square.coordinates + direction)
+			if square != null and square.piece == null:
+				valid.append(square)
+		return valid
+
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+		var valid : Array[ChessBoard.Square] = []
+		for direction in KNIGHT_DIRECTIONS:
+			var square = board.get_square(current_square.coordinates + direction)
+			if square != null and square.piece != null and square.piece.color != color:
+				valid.append(square)
+		return valid
+
+
 class Queen:
 	extends ChessPiece
 
@@ -147,6 +173,12 @@ static func get_traditional_board_setup():
 	board.get_square(Vector2(7,7)).piece = Rook.new(ChessPiece.PieceColor.black)
 	board.get_square(Vector2(0,0)).piece = Rook.new(ChessPiece.PieceColor.white)
 	board.get_square(Vector2(7,0)).piece = Rook.new(ChessPiece.PieceColor.white)
+
+	# Knights
+	board.get_square(Vector2(1,7)).piece = Knight.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(6,7)).piece = Knight.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(1,0)).piece = Knight.new(ChessPiece.PieceColor.white)
+	board.get_square(Vector2(6,0)).piece = Knight.new(ChessPiece.PieceColor.white)
 
 	# Bishops
 	board.get_square(Vector2(2,7)).piece = Bishop.new(ChessPiece.PieceColor.black)
