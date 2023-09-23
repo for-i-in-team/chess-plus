@@ -113,6 +113,27 @@ class Bishop:
 		return valid
 
 
+class Queen:
+	extends ChessPiece
+
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("Queen", _color, 8)
+
+	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
+		var diag = _diagonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
+		var orth = _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
+		return diag + orth
+
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+		var valid : Array[ChessBoard.Square] = []
+		for direction in [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]:
+			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
+			if square != null and square.piece.color != color:
+				valid.append(square)
+		return valid
+
+
+
 static func get_traditional_board_setup():
 	var board:ChessBoard = ChessBoard.new(Vector2(8,8))
 	
@@ -132,5 +153,9 @@ static func get_traditional_board_setup():
 	board.get_square(Vector2(5,7)).piece = Bishop.new(ChessPiece.PieceColor.black)
 	board.get_square(Vector2(2,0)).piece = Bishop.new(ChessPiece.PieceColor.white)
 	board.get_square(Vector2(5,0)).piece = Bishop.new(ChessPiece.PieceColor.white)
+
+	# Queens
+	board.get_square(Vector2(3,7)).piece = Queen.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(3,0)).piece = Queen.new(ChessPiece.PieceColor.white)
 
 	return board
