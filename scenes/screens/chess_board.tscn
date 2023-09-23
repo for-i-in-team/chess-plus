@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://n2k2sw1h74gq"]
 
 [ext_resource type="Script" path="res://scripts/view/chess_board.gd" id="1_1h38s"]
-[ext_resource type="PackedScene" uid="uid://02d2wh5inwjg" path="res://scenes/chessboard/chess_square.tscn" id="2_v8kxj"]
+[ext_resource type="PackedScene" uid="uid://bdrskebuxdslv" path="res://scenes/chessboard/chess_square.tscn" id="2_v8kxj"]
 
 [node name="ChessBoard" type="Node2D"]
 position = Vector2(300, 60)
