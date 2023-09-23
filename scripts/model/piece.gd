@@ -33,6 +33,7 @@ func move(board: ChessBoard, current_square:ChessBoard.Square, target_square:Che
     assert( target_square in get_valid_moves(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
     current_square.piece = null
     target_square.piece = self
+    board.events.piece_moved.emit(self, current_square, target_square)
 
 func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
     assert(false, "get_valid_moves not implemented " + current_square.to_string() + board.to_string())
@@ -42,6 +43,8 @@ func take(board: ChessBoard, current_square:ChessBoard.Square, target_square:Che
     assert( target_square in get_valid_takes(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
     current_square.piece = null
     target_square.piece = self
+    
+    board.events.piece_taken.emit(current_square, target_square, self, target_square.piece)
 
 func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
     assert(false, "get_valid_takes not implemented " + current_square.to_string() + board.to_string())

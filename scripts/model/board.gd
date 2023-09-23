@@ -4,6 +4,7 @@ class_name ChessBoard
 
 var size :Vector2
 var board : Array[BoardRow] = []
+var events : Events = Events.new()
 
 func _init(board_size:Vector2):
 	for i in range(board_size.y):
