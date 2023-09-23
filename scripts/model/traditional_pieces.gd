@@ -85,26 +85,14 @@ class Rook:
 		super._init("Rook", _color, 1)
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
-		var valid:Array[ChessBoard.Square] = []
-		var directions:Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
-		for direction in directions:
-			var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + direction)
-			while new_square != null and new_square.piece == null:
-				valid.append(new_square)
-				new_square = board.get_square(new_square.coordinates + direction)
-			if new_square != null and new_square.piece == null:
-				valid.append(new_square)
-		return valid
+		return _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
 
 	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid:Array[ChessBoard.Square] = []
-		var directions:Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
-		for direction in directions:
-			var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + direction)
-			while new_square != null and new_square.piece == null:
-				new_square = board.get_square(new_square.coordinates + direction)
-			if new_square != null and new_square.piece != null and new_square.piece.color != color:
-				valid.append(new_square)
+		var valid : Array[ChessBoard.Square] = []
+		for direction in [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]:
+			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
+			if square != null and square.piece.color != color:
+				valid.append(square)
 		return valid
 
 
