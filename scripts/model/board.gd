@@ -35,7 +35,7 @@ class Square:
 		coordinates = coord
 
 	func _to_string():
-		return "Square: (" + (coordinates.x as String) + "," + (coordinates.y as String) + ") " + piece.to_string()
+		return "Square: (%f,%f) %s"%[coordinates.x, coordinates.y, piece]
 
 
 class SquareColor:
