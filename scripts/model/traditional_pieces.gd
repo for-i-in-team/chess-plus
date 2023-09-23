@@ -44,6 +44,7 @@ class Pawn:
 					board.events.piece_taken.emit(current_square, target_square, self, square.piece)
 			if taken_piece != null:
 				board.events.piece_taken.emit(current_square, target_square, self, target_square.piece)
+			has_moved = true
 		else:
 			assert( target_square in get_valid_takes(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
 
@@ -152,9 +153,31 @@ class Queen:
 
 	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
 		var valid : Array[ChessBoard.Square] = []
-		for direction in [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]:
+		for direction in ChessPiece.ALL_DIRECTIONS:
 			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 			if square != null and square.piece.color != color:
+				valid.append(square)
+		return valid
+
+class King:
+	extends ChessPiece
+
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("King", _color, 0)
+	
+	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
+		var valid : Array[ChessBoard.Square] = []
+		for direction in ChessPiece.ALL_DIRECTIONS:
+			var square = board.get_square(current_square.coordinates + direction)
+			if square != null and square.piece == null:
+				valid.append(square)
+		return valid # TODO Castling
+
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+		var valid : Array[ChessBoard.Square] = []
+		for direction in ChessPiece.ALL_DIRECTIONS:
+			var square = board.get_square(current_square.coordinates + direction)
+			if square != null and square.piece != null and square.piece.color != color:
 				valid.append(square)
 		return valid
 
@@ -189,5 +212,9 @@ static func get_traditional_board_setup():
 	# Queens
 	board.get_square(Vector2(3,7)).piece = Queen.new(ChessPiece.PieceColor.black)
 	board.get_square(Vector2(3,0)).piece = Queen.new(ChessPiece.PieceColor.white)
+
+	# Kings
+	board.get_square(Vector2(4,7)).piece = King.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(4,0)).piece = King.new(ChessPiece.PieceColor.white)
 
 	return board

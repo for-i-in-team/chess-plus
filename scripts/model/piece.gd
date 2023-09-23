@@ -18,6 +18,8 @@ class PieceColor:
 	func get_perpendicular_direction():
 		return Vector2(move_direction.y, move_direction.x)
 
+const ALL_DIRECTIONS : Array[Vector2] =  [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
+
 var name : String
 var color : PieceColor
 var point_value : float
