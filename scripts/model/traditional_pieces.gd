@@ -78,14 +78,48 @@ class Pawn:
 		if turn_color == color:
 			en_passantable_coords = []
 			
+class Rook:
+	extends ChessPiece
+
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("Rook", _color, 1)
+
+	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
+		var valid:Array[ChessBoard.Square] = []
+		var directions:Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
+		for direction in directions:
+			var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + direction)
+			while new_square != null and new_square.piece == null:
+				valid.append(new_square)
+				new_square = board.get_square(new_square.coordinates + direction)
+			if new_square != null and new_square.piece == null:
+				valid.append(new_square)
+		return valid
+
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+		var valid:Array[ChessBoard.Square] = []
+		var directions:Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]
+		for direction in directions:
+			var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + direction)
+			while new_square != null and new_square.piece == null:
+				new_square = board.get_square(new_square.coordinates + direction)
+			if new_square != null and new_square.piece != null and new_square.piece.color != color:
+				valid.append(new_square)
+		return valid
 
 
 static func get_traditional_board_setup():
 	var board:ChessBoard = ChessBoard.new(Vector2(8,8))
 	
-	#Pawns
+	# Pawns
 	for i in range(8):
 		board.get_square(Vector2(i,6)).piece = Pawn.new(ChessPiece.PieceColor.black)
 		board.get_square(Vector2(i,1)).piece = Pawn.new(ChessPiece.PieceColor.white)
+
+	# Rooks
+	board.get_square(Vector2(0,7)).piece = Rook.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(7,7)).piece = Rook.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(0,0)).piece = Rook.new(ChessPiece.PieceColor.white)
+	board.get_square(Vector2(7,0)).piece = Rook.new(ChessPiece.PieceColor.white)
 
 	return board
