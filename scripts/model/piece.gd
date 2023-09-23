@@ -6,24 +6,17 @@ class PieceColor:
     var name : String
     var color : Color
     var move_direction : Vector2
+
+    static var white = PieceColor.new("White", Color.WHITE, Vector2(0, 1))
+    static var black = PieceColor.new("Black", Color.BLACK, Vector2(0, -1))
+
+    func _init(_name, _color, _move_direction):
+        name = _name
+        color = _color
+        move_direction = _move_direction
+
     func get_perpendicular_direction():
         return Vector2(move_direction.y, move_direction.x)
-
-
-class White:
-    extends PieceColor
-    func _init():
-        name = "White"
-        color = Color(1, 1, 1)
-        move_direction = Vector2(0, 1)
-
-
-class Black:
-    extends PieceColor
-    func _init():
-        name = "Black"
-        color = Color(0, 0, 0)
-        move_direction = Vector2(0, -1)
 
 var name : String
 var color : PieceColor
