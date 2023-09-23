@@ -8,10 +8,8 @@ class Pawn:
 	var has_moved : bool = false
 	var en_passantable_coords : Array[ChessBoard.Square] = []
 
-	func _init(piece_color:ChessPiece.PieceColor):
-		color = piece_color
-		name = "Pawn"
-		point_value = 1 
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("Pawn", _color, 1)
 
 	func move(board: ChessBoard, current_square: ChessBoard.Square, target_square: ChessBoard.Square):
 		super.move(board, current_square, target_square)

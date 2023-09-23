@@ -22,6 +22,11 @@ var name : String
 var color : PieceColor
 var point_value : float
 
+func _init(_name, _color, _point_value):
+    name = _name
+    color = _color
+    point_value = _point_value
+
 func move(board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
     assert( target_square in get_valid_moves(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
     current_square.piece = null
