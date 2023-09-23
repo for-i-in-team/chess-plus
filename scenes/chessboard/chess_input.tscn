@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3mc35jvektbg"]
+
+[ext_resource type="Script" path="res://scripts/view/chess_input.gd" id="1_5yyow"]
+[ext_resource type="PackedScene" uid="uid://v0asoh4qp3vq" path="res://scenes/chessboard/highlighter.tscn" id="2_54q5n"]
+
+[node name="input" type="Node2D"]
+script = ExtResource("1_5yyow")
+highlighter = ExtResource("2_54q5n")

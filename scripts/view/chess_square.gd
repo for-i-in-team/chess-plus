@@ -1,16 +1,51 @@
 class_name ChessSquareView
 
-extends Node2D
+extends Area2D
 
 @export var piece_scene : PackedScene
 var color:ChessBoard.SquareColor
 var square : ChessBoard.Square
+var mouse_hovered:bool = false
 
-func init(chess_square:ChessBoard.Square):
+signal square_selected(square:ChessSquareView)
+
+func _ready():
+	mouse_entered.connect(func():mouse_hovered = true)
+	mouse_exited.connect(func():mouse_hovered = false)
+
+func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 	square = chess_square
 	$sprite.modulate = square.color.color
-	position = square.coordinates * $sprite.texture.get_width()*$sprite.scale
-	if square.piece != null:
-		var piece = piece_scene.instantiate()
-		piece.init(square.piece)
-		add_child(piece)
+	position =  Vector2(square.coordinates.x, board.board.size.y-1 -square.coordinates.y) * $sprite.texture.get_width()*$sprite.scale
+	set_piece(square.piece)
+	board.board.events.piece_moved.connect(func(_piece:ChessPiece, from:ChessBoard.Square, to:ChessBoard.Square):
+		if from == square:
+			set_piece(null)
+		if to == square:
+			set_piece(to.piece)
+	)
+
+	board.board.events.piece_taken.connect(func(from:ChessBoard.Square, to:ChessBoard.Square, _taking:ChessPiece, taken:ChessPiece):
+		if from == square or taken == square.piece:
+			set_piece(null)
+		if to == square:
+			set_piece(to.piece)
+	)
+	
+func set_piece(piece:ChessPiece):
+	if piece != null:
+		var piece_view = piece_scene.instantiate()
+		piece_view.init(piece)
+		add_child(piece_view)
+	else:
+		for child in get_children():
+			if child is ChessPieceView:
+				remove_child(child)
+
+func get_sprite_scale():
+	return $sprite.scale
+
+func _input(event):
+	if mouse_hovered and event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and !event.pressed:
+			square_selected.emit(self)
