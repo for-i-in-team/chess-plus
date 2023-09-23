@@ -82,7 +82,7 @@ class Rook:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Rook", _color, 1)
+		super._init("Rook", _color, 5)
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
 		return _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
@@ -90,6 +90,23 @@ class Rook:
 	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
 		var valid : Array[ChessBoard.Square] = []
 		for direction in [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]:
+			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
+			if square != null and square.piece.color != color:
+				valid.append(square)
+		return valid
+
+class Bishop:
+	extends ChessPiece
+
+	func _init(_color:ChessPiece.PieceColor):
+		super._init("Bishop", _color, 3)
+
+	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
+		return _diagonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
+
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+		var valid : Array[ChessBoard.Square] = []
+		for direction in [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]:
 			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 			if square != null and square.piece.color != color:
 				valid.append(square)
@@ -109,5 +126,11 @@ static func get_traditional_board_setup():
 	board.get_square(Vector2(7,7)).piece = Rook.new(ChessPiece.PieceColor.black)
 	board.get_square(Vector2(0,0)).piece = Rook.new(ChessPiece.PieceColor.white)
 	board.get_square(Vector2(7,0)).piece = Rook.new(ChessPiece.PieceColor.white)
+
+	# Bishops
+	board.get_square(Vector2(2,7)).piece = Bishop.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(5,7)).piece = Bishop.new(ChessPiece.PieceColor.black)
+	board.get_square(Vector2(2,0)).piece = Bishop.new(ChessPiece.PieceColor.white)
+	board.get_square(Vector2(5,0)).piece = Bishop.new(ChessPiece.PieceColor.white)
 
 	return board
