@@ -33,17 +33,17 @@ class NoCheckConstraint:
 	func _init():
 		super._init("No Check","Prevents a piece from moving into check",true)
 
-	func validate_move(_board:ChessBoard, _origin:ChessBoard.Square, _destination:ChessBoard.Square, next_state:ChessBoard) -> bool:
-		return no_checks(next_state)
+	func validate_move(_board:ChessBoard, origin:ChessBoard.Square, _destination:ChessBoard.Square, next_state:ChessBoard) -> bool:
+		return no_checks(next_state, origin.piece.color)
 
-	func validate_take(_board:ChessBoard, _take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
-		return no_checks(_next_state)
+	func validate_take(_board:ChessBoard, take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
+		return no_checks(_next_state, take.from_square.piece.color)
 
-	func no_checks(board:ChessBoard):
+	func no_checks(board:ChessBoard, color:ChessPiece.PieceColor) -> bool:
 		for row in board.board:
 			for square in row.row:
-				if square.piece != null and square.piece.has_method("is_in_check"):
+				if square.piece != null and square.piece.color == color and square.piece.has_method("is_in_check"):
 					if square.piece.is_in_check(board, square):
 						return false
 		return true
-# BOOKMARK Add game effects which just receive events and alter the state of the board.
+
