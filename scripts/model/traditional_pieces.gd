@@ -161,18 +161,28 @@ class King:
 				valid.append(square)
 		return valid # TODO Castling
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid : Array[ChessBoard.Square] = []
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)->Array[ChessPiece.Take]:
+		var valid : Array[ChessPiece.Take] = []
 		for direction in ChessPiece.ALL_DIRECTIONS:
 			var square = board.get_square(current_square.coordinates + direction)
 			if square != null and square.piece != null and square.piece.color != color:
 				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
+	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square):
+		for row in board.board:
+			for square in row.row:
+				if square.piece != null and square.piece.color != color:
+					var valid_takes = square.piece.get_valid_takes(board, square)
+					for _take in valid_takes:
+						if _take.targets.find(current_square) != -1:
+							return true
+		return false
+
 
 
 static func get_traditional_board_setup():
-	var board:ChessBoard = ChessBoard.new(Vector2(8,8))
+	var board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
 	
 	# Pawns
 	for i in range(8):

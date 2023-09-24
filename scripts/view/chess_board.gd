@@ -15,7 +15,7 @@ func _ready():
 			square_view.init(self, square)
 			add_child(square_view)
 			square_view.square_selected.connect(input.set_square)
-	input.init(self,get_square_view(board.get_square(Vector2(0,1))))
+	input.init(self)
 
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 	for child in get_children():
