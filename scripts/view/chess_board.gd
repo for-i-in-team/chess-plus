@@ -17,6 +17,9 @@ func _ready():
 			square_view.square_selected.connect(input.set_square)
 	input.init(self)
 
+
+	board.events.color_lost.connect(func(color:ChessPiece.PieceColor):print("color lost: " + color.name))
+
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 	for child in get_children():
 		if child is ChessSquareView:
