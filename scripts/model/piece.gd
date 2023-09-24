@@ -1,6 +1,14 @@
 class_name ChessPiece
 
+class Take:
+	var from_square : ChessBoard.Square
+	var to_square : ChessBoard.Square
+	var targets : Array[ChessBoard.Square]
 
+	func _init(_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _targets : Array[ChessBoard.Square]):
+		self.from_square = _from_square
+		self.to_square = _to_square
+		self.targets = _targets
 
 class PieceColor:
 	var name : String
@@ -29,26 +37,26 @@ func _init(_name, _color, _point_value):
 	color = _color
 	point_value = _point_value
 
-func move(board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-	assert( target_square in get_valid_moves(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
+func move(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	current_square.piece = null
 	target_square.piece = self
-	board.events.piece_moved.emit(self, current_square, target_square)
 
 func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
 	assert(false, "get_valid_moves not implemented " + current_square.to_string() + board.to_string())
 	return []
 
-func take(board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-	assert( target_square in get_valid_takes(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
-	current_square.piece = null
-	target_square.piece = self
+func take(_take:Take):
+	_take.from_square.piece = null
+	for target_square in _take.targets:
+		target_square.piece = null
+	_take.to_square.piece = self
 	
-	board.events.piece_taken.emit(current_square, target_square, self, target_square.piece)
-
-func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
+func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Array[Take]:
 	assert(false, "get_valid_takes not implemented " + current_square.to_string() + board.to_string())
-	return [current_square]
+	return []
+
+func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square) -> Take:
+	return Take.new(current_square, target_square, [target_square])
 
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
 	var valid:Array[ChessBoard.Square] = []
@@ -78,6 +86,9 @@ func test_in_direction(board: ChessBoard, start: ChessBoard.Square, direction: V
 	while new_square != null and !condition.call(new_square):
 		new_square = board.get_square(new_square.coordinates + direction)
 	return new_square
+
+func copy() -> ChessPiece:
+	return self
 
 func _to_string():
 	return color.name + " " + name

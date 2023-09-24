@@ -30,54 +30,42 @@ class Pawn:
 
 		return valid
 
-	func take(board: ChessBoard, current_square: ChessBoard.Square, target_square: ChessBoard.Square):
-		if target_square in get_valid_takes(board, current_square):
-			var taken_piece:ChessPiece = target_square.piece
-			var en_passant_squares : Array[ChessBoard.Square] = get_en_passant_pieces(target_square, board)
-			
-			current_square.piece = null
-			target_square.piece = self
-			
-			if len(en_passant_squares) > 0:
-				for square in en_passant_squares:
-					square.piece = null
-					board.events.piece_taken.emit(current_square, target_square, self, square.piece)
-			if taken_piece != null:
-				board.events.piece_taken.emit(current_square, target_square, self, target_square.piece)
-			has_moved = true
-		else:
-			assert( target_square in get_valid_takes(board, current_square), "Invalid move %s -> %s" % [current_square.to_string(), target_square.to_string()])
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
 		var take_squares : Array[ChessBoard.Square] = [
 			board.get_square(current_square.coordinates + color.move_direction + color.get_perpendicular_direction()),
 			board.get_square(current_square.coordinates + color.move_direction - color.get_perpendicular_direction())
 		]
-		var valid_takes : Array[ChessBoard.Square] = []
+		var valid_takes : Array[ChessPiece.Take] = []
 		for square in take_squares:
-			if square != null and ((square.piece != null and square.piece.color != color) or  len(get_en_passant_pieces(square, board)) > 0):
-				valid_takes.append(square)
-
+			if square != null:
+				var square_take : Take = get_take_for_square(board, current_square, square)
+				if square_take.targets.size() > 0:
+					valid_takes.append(square_take)
 
 		return valid_takes
 
-	func get_en_passant_pieces(square:ChessBoard.Square, board: ChessBoard) -> Array[ChessBoard.Square]:
-		var valid_en_passant_pieces : Array[ChessBoard.Square] = []
-		if square.piece != null and square.piece.color == color:
-			return valid_en_passant_pieces
+	func get_take_for_square(board:ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
+		var _take = ChessPiece.Take.new(current_square, target_square, [])
+		if target_square.piece != null:
+			_take.targets.append(target_square)
+		
 		for row in board.board:
 			for ep_square in row.row:
 				if ep_square.piece != null and ep_square.piece.color != color and ep_square.piece.get("en_passantable_coords") != null:
 					var pawn : ChessPiece = ep_square.piece
-					if square in pawn.en_passantable_coords:
-						valid_en_passant_pieces.append(ep_square)
-		return valid_en_passant_pieces
-
-	
+					if target_square in pawn.en_passantable_coords:
+						_take.targets.append(ep_square)
+		return _take
 
 	func on_turn_start(turn_color: ChessPiece.PieceColor):
 		if turn_color == color:
 			en_passantable_coords = []
+
+	func copy() -> ChessPiece:
+		var new_pawn : Pawn = Pawn.new(color)
+		new_pawn.has_moved = has_moved
+		new_pawn.en_passantable_coords = en_passantable_coords
+		return new_pawn
 			
 class Rook:
 	extends ChessPiece
@@ -88,12 +76,12 @@ class Rook:
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
 		return _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid : Array[ChessBoard.Square] = []
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
+		var valid : Array[ChessPiece.Take] = []
 		for direction in [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]:
 			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 			if square != null and square.piece.color != color:
-				valid.append(square)
+				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
 class Bishop:
@@ -105,12 +93,12 @@ class Bishop:
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
 		return _diagonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid : Array[ChessBoard.Square] = []
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
+		var valid : Array[ChessPiece.Take] = []
 		for direction in [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]:
 			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 			if square != null and square.piece.color != color:
-				valid.append(square)
+				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
 
@@ -131,12 +119,12 @@ class Knight:
 				valid.append(square)
 		return valid
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid : Array[ChessBoard.Square] = []
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
+		var valid : Array[ChessPiece.Take] = []
 		for direction in KNIGHT_DIRECTIONS:
 			var square = board.get_square(current_square.coordinates + direction)
 			if square != null and square.piece != null and square.piece.color != color:
-				valid.append(square)
+				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
 
@@ -151,12 +139,12 @@ class Queen:
 		var orth = _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
 		return diag + orth
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square):
-		var valid : Array[ChessBoard.Square] = []
+	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)-> Array[ChessPiece.Take]:
+		var valid : Array[ChessPiece.Take] = []
 		for direction in ChessPiece.ALL_DIRECTIONS:
 			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 			if square != null and square.piece.color != color:
-				valid.append(square)
+				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
 class King:
@@ -178,7 +166,7 @@ class King:
 		for direction in ChessPiece.ALL_DIRECTIONS:
 			var square = board.get_square(current_square.coordinates + direction)
 			if square != null and square.piece != null and square.piece.color != color:
-				valid.append(square)
+				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
 

@@ -25,11 +25,11 @@ func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 			set_piece(to.piece)
 	)
 
-	board.board.events.piece_taken.connect(func(from:ChessBoard.Square, to:ChessBoard.Square, _taking:ChessPiece, taken:ChessPiece):
-		if from == square or taken == square.piece:
+	board.board.events.piece_taken.connect(func(take:ChessPiece.Take):
+		if take.from_square == square or square in take.targets:
 			set_piece(null)
-		if to == square:
-			set_piece(to.piece)
+		if take.to_square == square:
+			set_piece(take.to_square.piece)
 	)
 	
 func set_piece(piece:ChessPiece):

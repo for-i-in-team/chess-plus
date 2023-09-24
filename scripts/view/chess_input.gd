@@ -22,9 +22,9 @@ func set_square(sq : ChessSquareView):
 		return
 	
 	if sq.square in move_squares:
-		square.square.piece.move(board.board, square.square, sq.square)
+		board.board.move(square.square, sq.square)
 	if sq.square in take_squares:
-		square.square.piece.take(board.board, square.square, sq.square)
+		board.board.take(square.square, sq.square)
 
 	square = sq
 
@@ -33,8 +33,10 @@ func set_square(sq : ChessSquareView):
 		move_squares = []
 		take_squares = []
 	else:
-		self.move_squares = piece.get_valid_moves(board.board, square.square)
-		self.take_squares = piece.get_valid_takes(board.board, square.square)
+		self.move_squares = board.board.get_valid_moves(square.square)
+		self.take_squares = []
+		for take in board.board.get_valid_takes(square.square):
+			self.take_squares.append(take.to_square) 
 
 	set_highlights()
 
