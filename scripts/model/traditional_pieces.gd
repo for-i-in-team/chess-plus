@@ -210,7 +210,7 @@ class King:
 				valid.append(get_take_for_square(board, current_square, square))
 		return valid
 
-	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square):
+	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square) -> bool:
 		for row in board.board:
 			for square in row.row:
 				if square.piece != null and square.piece.color != color:
@@ -229,7 +229,8 @@ class King:
 
 static func get_traditional_board_setup():
 	var board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
-	
+	board.add_effect(GameEffect.EndOnCheckmate.new())
+
 	# Pawns
 	for i in range(8):
 		board.get_square(Vector2(i,6)).piece = Pawn.new(ChessPiece.PieceColor.black)
