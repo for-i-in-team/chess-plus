@@ -110,8 +110,8 @@ func copy():
 			var new_square = Square.new(square.color, square.coordinates)
 			if square.piece != null:
 				new_square.piece = square.piece.copy()
-			new_row.row.append(new_square)
-		new_board.board.append(new_row)
+			new_row.row[square.coordinates.x as int] = new_square
+		new_board.board[row.row[0].coordinates.y as int] = new_row
 	return new_board
 
 class BoardRow:
