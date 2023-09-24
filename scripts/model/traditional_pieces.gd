@@ -69,9 +69,15 @@ class Pawn:
 			
 class Rook:
 	extends ChessPiece
+	
+	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Rook", _color, 5)
+
+	func move(board: ChessBoard, current_square: ChessBoard.Square, target_square: ChessBoard.Square):
+		super.move(board, current_square, target_square)
+		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
 		return _orthogonal_where(board, current_square, func(square:ChessBoard.Square): return square.piece == null)
@@ -83,6 +89,11 @@ class Rook:
 			if square != null and square.piece.color != color:
 				valid.append(get_take_for_square(board, current_square, square))
 		return valid
+		
+	func copy() -> ChessPiece:
+		var new_rook : Rook = Rook.new(color)
+		new_rook.has_moved = has_moved
+		return new_rook
 
 class Bishop:
 	extends ChessPiece
@@ -150,16 +161,46 @@ class Queen:
 class King:
 	extends ChessPiece
 
+	var has_moved : bool = false
+
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("King", _color, 0)
 	
+	func move(board: ChessBoard, current_square: ChessBoard.Square, target_square: ChessBoard.Square):
+		var direction : Vector2 = target_square.coordinates - current_square.coordinates
+		var is_castle : bool = can_castle(board, current_square, direction.normalized()) 
+		is_castle = is_castle and direction.y == 0
+		is_castle = is_castle and abs(direction.x) == 2
+		super.move(board, current_square, target_square)
+		if is_castle:
+			var rook_square = test_in_direction(board, target_square, direction.normalized(), func(square:ChessBoard.Square): return square.piece != null )
+			assert(rook_square != null and rook_square.piece is Rook, "Tried to castle with a non rook")
+			rook_square.piece.move(board, rook_square, board.get_square(target_square.coordinates - direction.normalized()))
+			board.events.piece_moved.emit(rook_square.piece, rook_square, board.get_square(target_square.coordinates - direction.normalized()))
+			
+		has_moved = true
+
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessBoard.Square]:
 		var valid : Array[ChessBoard.Square] = []
 		for direction in ChessPiece.ALL_DIRECTIONS:
 			var square = board.get_square(current_square.coordinates + direction)
 			if square != null and square.piece == null:
 				valid.append(square)
-		return valid # TODO Castling
+		if !has_moved:
+			for direction in [Vector2(-1,0), Vector2(1,0)]:
+				if can_castle(board, current_square, direction):
+					valid.append(board.get_square(current_square.coordinates + 2*direction))
+		return valid
+
+	func can_castle(board:ChessBoard, current_square:ChessBoard.Square, direction:Vector2):
+		var next_piece_square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
+		if next_piece_square != null and next_piece_square.piece is Rook and !next_piece_square.piece.has_moved and next_piece_square.piece.color == color:
+			var threat_squares : Array[Vector2] = [current_square.coordinates,current_square.coordinates + direction, current_square.coordinates, current_square.coordinates + 2*direction]
+			for square in threat_squares:
+				if is_in_check(board, board.get_square(square)):
+					return false
+			return true
+		return false
 
 	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)->Array[ChessPiece.Take]:
 		var valid : Array[ChessPiece.Take] = []
@@ -178,6 +219,11 @@ class King:
 						if _take.targets.find(current_square) != -1:
 							return true
 		return false
+	
+	func copy() -> ChessPiece:
+		var new_king : King = King.new(color)
+		new_king.has_moved = has_moved
+		return new_king
 
 
 
