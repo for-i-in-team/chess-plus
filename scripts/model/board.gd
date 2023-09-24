@@ -6,6 +6,7 @@ var size :Vector2
 var board : Array[BoardRow] = []
 var events : Events = Events.new()
 var constraints:Array[GameConstraint] = []
+var effects:Array[GameEffect] = []
 
 func _init(board_size:Vector2, _constraints:Array[GameConstraint] = []):
 	if len(_constraints) > 0:
@@ -14,12 +15,32 @@ func _init(board_size:Vector2, _constraints:Array[GameConstraint] = []):
 		size = board_size
 		board.append(BoardRow.new(i,size.x as int))
 
+func add_effect(effect:GameEffect):
+	effect.set_board(self)
+	effects.append(effect)
+
 func get_square(coordinates:Vector2):
 	if coordinates.x < 0 or coordinates.x >= size.x or coordinates.y < 0 or coordinates.y >= size.y:
 		return null
 	else:
 		# AUDIT Do we need to swap the rows to columns so that we can access
 		return board[coordinates.y as int].row[coordinates.x as int]
+
+func get_all_moves(color:ChessPiece.PieceColor):
+	var moves:Array[ChessBoard.Square] = []
+	for row in board:
+		for square in row.row:
+			if square.piece != null and square.piece.color == color:
+				moves += get_valid_moves(square)
+	return moves
+
+func get_all_takes(color:ChessPiece.PieceColor):
+	var takes:Array[ChessPiece.Take] = []
+	for row in board:
+		for square in row.row:
+			if square.piece != null and square.piece.color == color:
+				takes += get_valid_takes(square)
+	return takes
 
 func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	assert( target_square in origin_square.piece.get_valid_moves(self, origin_square), "Invalid move %s -> %s" % [origin_square.to_string(), target_square.to_string()])
@@ -47,7 +68,6 @@ func get_valid_takes(origin_square:ChessBoard.Square):
 	return validate_takes(origin_square.piece.get_valid_takes(self, origin_square))
 
 func validate_moves(origin_square:ChessBoard.Square, destination_squares:Array[ChessBoard.Square]):
-	# TODO Work out how to handle other illegal moves (e.g. revealed check, also need to work out how to test checkmate)
 	var valid:Array[ChessBoard.Square] = []
 	var needs_state:bool = false
 	for c in constraints:
@@ -104,6 +124,8 @@ func get_new_board_state_move(origin_square:ChessBoard.Square, destination_squar
 
 func copy():
 	var new_board = ChessBoard.new(size, constraints)
+	for effect in effects:
+		new_board.effects.append(effect.copy(new_board))
 	for row in board:
 		var new_row = BoardRow.new(row.row[0].coordinates.y as int, row.row.size())
 		for square in row.row:
