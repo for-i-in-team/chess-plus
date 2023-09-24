@@ -7,13 +7,42 @@ var board : Array[BoardRow] = []
 var events : Events = Events.new()
 var constraints:Array[GameConstraint] = []
 var effects:Array[GameEffect] = []
+var colors:Array[ChessPiece.PieceColor]
+var current_turn : ChessPiece.PieceColor = ChessPiece.PieceColor.white
 
-func _init(board_size:Vector2, _constraints:Array[GameConstraint] = []):
+func _init(board_size:Vector2, _constraints:Array[GameConstraint] = [], _colors:Array[ChessPiece.PieceColor] = []):
 	if len(_constraints) > 0:
 		constraints = _constraints
+	if len(_colors) > 0:
+		colors = _colors
+	else:
+		colors = get_colors()
 	for i in range(board_size.y):
 		size = board_size
 		board.append(BoardRow.new(i,size.x as int))
+	events.color_lost.connect(func(color):handle_color_loss(color))
+
+func next_turn():
+	var index:int = colors.find(current_turn)
+	assert(index >= 0, "Invalid color %s" % current_turn)
+	index += 1
+	if index >= colors.size():
+		index = 0
+	current_turn = colors[index]
+	events.turn_started.emit(current_turn)
+
+func handle_color_loss(color:ChessPiece.PieceColor):
+	colors.erase(color)
+	if len(colors) == 1:
+		events.game_over.emit(colors[0])
+
+func get_colors():
+	var _colors:Array[ChessPiece.PieceColor] = []
+	for row in board:
+		for square in row.row:
+			if square.piece != null and square.piece.color not in _colors:
+				_colors.append(square.piece.color)
+	return _colors
 
 func add_effect(effect:GameEffect):
 	effect.set_board(self)
@@ -48,6 +77,7 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	piece.move(self, origin_square, target_square)
 
 	events.piece_moved.emit(piece, origin_square, target_square)
+	next_turn()
 
 func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
 	var takes :Array[ChessPiece.Take] = get_valid_takes(origin_square)
@@ -60,6 +90,7 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 	origin_square.piece.take(_take)
 	
 	events.piece_taken.emit(_take)
+	next_turn()
 
 func get_valid_moves(origin_square:ChessBoard.Square):
 	return validate_moves(origin_square, origin_square.piece.get_valid_moves(self, origin_square))

@@ -15,10 +15,10 @@ func _ready():
 			square_view.init(self, square)
 			add_child(square_view)
 			square_view.square_selected.connect(input.set_square)
-	input.init(self)
+	input.init(self, ChessPiece.PieceColor.white, board.current_turn)
 
 
-	board.events.color_lost.connect(func(color:ChessPiece.PieceColor):print("color lost: " + color.name))
+	board.events.game_over.connect(func(color:ChessPiece.PieceColor):print("Color Won: " + color.name))
 
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 	for child in get_children():

@@ -13,8 +13,7 @@ class EndOnCheckmate:
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		# AUDIT Hook this up to onTurnStart
-		_board.events.piece_moved.connect(func(_piece,_from,_to): handle_move(_piece.color))
+		_board.events.turn_started.connect(func(color): handle_move(color))
 
 	func handle_move(color:ChessPiece.PieceColor):
 		var opponent:ChessPiece.PieceColor 

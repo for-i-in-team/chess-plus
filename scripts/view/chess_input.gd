@@ -7,10 +7,19 @@ var square: ChessSquareView
 var board: ChessBoardView
 var move_squares: Array[ChessBoard.Square]
 var take_squares: Array[ChessBoard.Square]
+var color : ChessPiece.PieceColor
+var current_turn : ChessPiece.PieceColor
 
-func init(chess_board: ChessBoardView, chess_square: ChessSquareView=null):
+func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_turn:ChessPiece.PieceColor, chess_square: ChessSquareView=null):
 	board = chess_board
+	color = _color
+	current_turn = _current_turn
 	set_square(chess_square)
+
+	board.board.events.turn_started.connect(func(color):set_turn(color))
+
+func set_turn(color:ChessPiece.PieceColor):
+	current_turn = color
 
 func set_square(sq : ChessSquareView):
 	if sq == null:
@@ -21,10 +30,11 @@ func set_square(sq : ChessSquareView):
 			remove_child(child)
 		return
 	
-	if sq.square in move_squares:
-		board.board.move(square.square, sq.square)
-	if sq.square in take_squares:
-		board.board.take(square.square, sq.square)
+	if current_turn == color:
+		if sq.square in move_squares:
+			board.board.move(square.square, sq.square)
+		if sq.square in take_squares:
+			board.board.take(square.square, sq.square)
 
 	square = sq
 

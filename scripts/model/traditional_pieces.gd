@@ -261,5 +261,7 @@ static func get_traditional_board_setup():
 	# Kings
 	board.get_square(Vector2(4,7)).piece = King.new(ChessPiece.PieceColor.black)
 	board.get_square(Vector2(4,0)).piece = King.new(ChessPiece.PieceColor.white)
+	
+	board.colors = [ChessPiece.PieceColor.white, ChessPiece.PieceColor.black]
 
 	return board
