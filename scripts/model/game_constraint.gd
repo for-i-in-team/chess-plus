@@ -9,7 +9,7 @@ func _init(_name:String,_description:String, _requires_next_state:bool):
 	name = _name
 	description = _description
 
-func validate_move(_board:ChessBoard, _origin:ChessBoard.Square, _destination:ChessBoard.Square, _next_state:ChessBoard) -> bool:
+func validate_move(_board:ChessBoard, _move:ChessPiece.Move, _next_state:ChessBoard) -> bool:
 	return true
 
 func validate_take(_board:ChessBoard, _take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
@@ -33,8 +33,8 @@ class NoCheckConstraint:
 	func _init():
 		super._init("No Check","Prevents a piece from moving into check",true)
 
-	func validate_move(_board:ChessBoard, origin:ChessBoard.Square, _destination:ChessBoard.Square, next_state:ChessBoard) -> bool:
-		return no_checks(next_state, origin.piece.color)
+	func validate_move(_board:ChessBoard, _move:ChessPiece.Move, next_state:ChessBoard) -> bool:
+		return no_checks(next_state, _move.from_square.piece.color)
 
 	func validate_take(_board:ChessBoard, take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
 		return no_checks(_next_state, take.from_square.piece.color)

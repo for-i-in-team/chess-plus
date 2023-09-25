@@ -55,15 +55,15 @@ func get_square(coordinates:Vector2):
 		# AUDIT Do we need to swap the rows to columns so that we can access
 		return board[coordinates.y as int].row[coordinates.x as int]
 
-func get_all_moves(color:ChessPiece.PieceColor):
-	var moves:Array[ChessBoard.Square] = []
+func get_all_moves(color:ChessPiece.PieceColor) -> Array[ChessPiece.Move]:
+	var moves:Array[ChessPiece.Move] = []
 	for row in board:
 		for square in row.row:
 			if square.piece != null and square.piece.color == color:
 				moves += get_valid_moves(square)
 	return moves
 
-func get_all_takes(color:ChessPiece.PieceColor):
+func get_all_takes(color:ChessPiece.PieceColor) -> Array[ChessPiece.Take]:
 	var takes:Array[ChessPiece.Take] = []
 	for row in board:
 		for square in row.row:
@@ -72,11 +72,16 @@ func get_all_takes(color:ChessPiece.PieceColor):
 	return takes
 
 func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
-	assert( target_square in origin_square.piece.get_valid_moves(self, origin_square), "Invalid move %s -> %s" % [origin_square.to_string(), target_square.to_string()])
+	var _move : ChessPiece.Move
+	for m in get_valid_moves(origin_square):
+		if m.to_square == target_square:
+			_move = m
+			break
+	assert( _move != null, "Invalid move %s -> %s" % [origin_square.to_string(), target_square.to_string()])
 	var piece:ChessPiece = origin_square.piece
-	piece.move(self, origin_square, target_square)
+	piece.move(self, _move)
 
-	events.piece_moved.emit(piece, origin_square, target_square)
+	events.piece_moved.emit(_move)
 	next_turn()
 
 func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
@@ -87,38 +92,38 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 			_take = t
 			break
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
-	origin_square.piece.take(_take)
+	origin_square.piece.take(self, _take)
 	
 	events.piece_taken.emit(_take)
 	next_turn()
 
-func get_valid_moves(origin_square:ChessBoard.Square):
-	return validate_moves(origin_square, origin_square.piece.get_valid_moves(self, origin_square))
+func get_valid_moves(origin_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
+	return validate_moves(origin_square.piece.get_valid_moves(self, origin_square))
 
-func get_valid_takes(origin_square:ChessBoard.Square):
+func get_valid_takes(origin_square:ChessBoard.Square)-> Array[ChessPiece.Take]:
 	return validate_takes(origin_square.piece.get_valid_takes(self, origin_square))
 
-func validate_moves(origin_square:ChessBoard.Square, destination_squares:Array[ChessBoard.Square]):
-	var valid:Array[ChessBoard.Square] = []
+func validate_moves(moves : Array[ChessPiece.Move])-> Array[ChessPiece.Move]:
+	var valid:Array[ChessPiece.Move] = []
 	var needs_state:bool = false
 	for c in constraints:
 		if c.requires_next_state:
 			needs_state = true
 			break
-	for square in destination_squares:
+	for _move in moves:
 		var next_state = null
 		if needs_state:
-			next_state = get_new_board_state_move(origin_square, square)
+			next_state = get_new_board_state_move(_move)
 		var is_move_valid:bool = true
 		for c in constraints:
-			if not c.validate_move(self, origin_square, square, next_state):
+			if not c.validate_move(self, _move, next_state):
 				is_move_valid = false
 				break
 		if is_move_valid:
-			valid.append(square)
+			valid.append(_move)
 	return valid
 
-func validate_takes(takes:Array[ChessPiece.Take]):
+func validate_takes(takes:Array[ChessPiece.Take])-> Array[ChessPiece.Take]:
 	var valid:Array[ChessPiece.Take] = []
 	var needs_state:bool = false
 	for c in constraints:
@@ -143,17 +148,18 @@ func get_new_board_state_take(_take:ChessPiece.Take):
 	var new_take = ChessPiece.Take.new(new_board.get_square(_take.from_square.coordinates), new_board.get_square(_take.to_square.coordinates), [])
 	for sq in _take.targets:
 		new_take.targets.append(new_board.get_square(sq.coordinates))
-	new_take.from_square.piece.take(new_take)
+	new_take.from_square.piece.take(new_board, new_take)
 	return new_board
 
-func get_new_board_state_move(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
+func get_new_board_state_move(_move: ChessPiece.Move) -> ChessBoard:
 	var new_board = copy()
-	var origin = new_board.get_square(origin_square.coordinates)
-	var destination = new_board.get_square(destination_square.coordinates)
-	origin.piece.move(new_board, origin, destination)
+	var new_move : ChessPiece.Move = ChessPiece.Move.new(new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates))
+	for mv in _move.incidental:
+		new_move.incidental.append(ChessPiece.Move.new(new_board.get_square(mv.from_square.coordinates), new_board.get_square(mv.to_square.coordinates)))
+	new_move.from_square.piece.move(new_board, new_move)
 	return new_board
 
-func copy():
+func copy() -> ChessBoard:
 	var new_board = ChessBoard.new(size, constraints)
 	for effect in effects:
 		new_board.effects.append(effect.copy(new_board))

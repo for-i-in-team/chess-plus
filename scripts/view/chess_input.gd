@@ -16,10 +16,10 @@ func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_tu
 	current_turn = _current_turn
 	set_square(chess_square)
 
-	board.board.events.turn_started.connect(func(color):set_turn(color))
+	board.board.events.turn_started.connect(func(_color):set_turn(_color))
 
-func set_turn(color:ChessPiece.PieceColor):
-	current_turn = color
+func set_turn(_color:ChessPiece.PieceColor):
+	current_turn = _color
 
 func set_square(sq : ChessSquareView):
 	if sq == null:
@@ -39,14 +39,13 @@ func set_square(sq : ChessSquareView):
 	square = sq
 
 	var piece : ChessPiece = square.square.piece
-	if piece == null:
-		move_squares = []
-		take_squares = []
-	else:
-		self.move_squares = board.board.get_valid_moves(square.square)
-		self.take_squares = []
+	move_squares = []
+	take_squares = []
+	if piece != null:
+		for move in board.board.get_valid_moves(square.square):
+			move_squares.append(move.to_square)
 		for take in board.board.get_valid_takes(square.square):
-			self.take_squares.append(take.to_square) 
+			take_squares.append(take.to_square) 
 
 	set_highlights()
 

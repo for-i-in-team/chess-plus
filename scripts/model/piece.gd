@@ -10,6 +10,16 @@ class Take:
 		self.to_square = _to_square
 		self.targets = _targets
 
+class Move:
+	var from_square : ChessBoard.Square
+	var to_square : ChessBoard.Square
+	var incidental : Array[Move]
+
+	func _init(_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _incidental : Array[Move] = []):
+		from_square = _from_square
+		to_square = _to_square
+		incidental = _incidental
+
 class PieceColor:
 	var name : String
 	var color : Color
@@ -37,15 +47,19 @@ func _init(_name, _color, _point_value):
 	color = _color
 	point_value = _point_value
 
-func move(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-	current_square.piece = null
-	target_square.piece = self
+func move(_board: ChessBoard, _move:Move):
+	_move.from_square.piece = null
+	_move.to_square.piece = self
+	for incidental_move in _move.incidental:
+		var piece: ChessPiece = incidental_move.from_square.piece
+		incidental_move.from_square.piece = null
+		incidental_move.to_square.piece = piece
 
-func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[ChessBoard.Square]:
+func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[Move]:
 	assert(false, "get_valid_moves not implemented " + current_square.to_string() + board.to_string())
 	return []
 
-func take(_take:Take):
+func take(_board:ChessBoard, _take:Take):
 	_take.from_square.piece = null
 	for target_square in _take.targets:
 		target_square.piece = null

@@ -18,11 +18,11 @@ func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 	$sprite.modulate = square.color.color
 	position =  Vector2(square.coordinates.x, board.board.size.y-1 -square.coordinates.y) * $sprite.texture.get_width()*$sprite.scale
 	set_piece(square.piece)
-	board.board.events.piece_moved.connect(func(_piece:ChessPiece, from:ChessBoard.Square, to:ChessBoard.Square):
-		if from == square:
+	board.board.events.piece_moved.connect(func(move:ChessPiece.Move):
+		if move.from_square == square:
 			set_piece(null)
-		if to == square:
-			set_piece(to.piece)
+		if move.to_square == square:
+			set_piece(move.to_square.piece)
 	)
 
 	board.board.events.piece_taken.connect(func(take:ChessPiece.Take):
