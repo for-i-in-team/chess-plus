@@ -231,13 +231,7 @@ class King:
 		return new_king
 
 
-
-static func get_traditional_board_setup():
-	var board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
-	board.add_effect(GameEffect.EndOnCheckmate.new())
-	board.add_effect(GameEffect.EndOnStalemate.new())
-	board.add_effect(GameEffect.PiecesPromoteToQueens.new())
-
+static func lay_out_traditional_board(board:ChessBoard):
 	# Pawns
 	for i in range(8):
 		board.get_square(Vector2(i,6)).piece = Pawn.new(ChessPiece.PieceColor.black)
@@ -270,5 +264,13 @@ static func get_traditional_board_setup():
 	board.get_square(Vector2(4,0)).piece = King.new(ChessPiece.PieceColor.white)
 	
 	board.colors = [ChessPiece.PieceColor.white, ChessPiece.PieceColor.black]
+
+static func get_traditional_board_setup():
+	var board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
+	board.add_effect(GameEffect.EndOnCheckmate.new())
+	board.add_effect(GameEffect.EndOnStalemate.new())
+	board.add_effect(GameEffect.PiecesPromoteToQueens.new())
+
+	TraditionalPieces.lay_out_traditional_board(board)
 
 	return board
