@@ -235,6 +235,7 @@ class King:
 static func get_traditional_board_setup():
 	var board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
 	board.add_effect(GameEffect.EndOnCheckmate.new())
+	board.add_effect(GameEffect.EndOnStalemate.new())
 	board.add_effect(GameEffect.PiecesPromoteToQueens.new())
 
 	# Pawns

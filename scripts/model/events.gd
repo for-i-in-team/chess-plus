@@ -12,3 +12,4 @@ signal turn_started(color:ChessPiece.PieceColor)
 
 signal promote_piece(square:ChessBoard.Square)
 
+signal stalemated(color:ChessPiece.PieceColor)

@@ -41,6 +41,28 @@ class EndOnCheckmate:
 		var new:EndOnCheckmate = EndOnCheckmate.new()
 		new.set_board(_board)
 		return new
+
+class EndOnStalemate:
+	extends GameEffect
+
+	func set_board(_board:ChessBoard):
+		super.set_board(_board)
+		_board.events.turn_started.connect(func(color): handle_move(color))
+
+	func handle_move(color:ChessPiece.PieceColor):
+		if is_stalemate(board, color):
+			board.events.stalemated.emit(color)
+
+	func is_stalemate(_board:ChessBoard, color):
+		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
+			return true
+		return false
+
+	func copy(_board:ChessBoard):
+		var new:EndOnStalemate = EndOnStalemate.new()
+		new.set_board(_board)
+		return new
+
 class PiecesPromoteToQueens:
 	extends GameEffect
 
