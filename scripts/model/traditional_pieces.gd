@@ -176,17 +176,7 @@ class King:
 		super._init("King", _color, 0)
 	
 	func move(board: ChessBoard, _move:Move):
-		var direction : Vector2 = _move.to_square.coordinates - _move.to_square.coordinates
-		var is_castle : bool = can_castle(board, _move.from_square, direction.normalized()) 
-		is_castle = is_castle and direction.y == 0
-		is_castle = is_castle and abs(direction.x) == 2
 		super.move(board, _move)
-		if is_castle:
-			var rook_square = test_in_direction(board, _move.to_square, direction.normalized(), func(square:ChessBoard.Square): return square.piece != null )
-			assert(rook_square != null and rook_square.piece is Rook, "Tried to castle with a non rook")
-			rook_square.piece.move(board, rook_square, board.get_square(_move.to_square.coordinates - direction.normalized()))
-			board.events.piece_moved.emit(rook_square.piece, rook_square, board.get_square(_move.to_square.coordinates - direction.normalized()))
-			
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
@@ -197,19 +187,22 @@ class King:
 				valid.append(ChessPiece.Move.new(current_square, square))
 		if !has_moved:
 			for direction in [Vector2(-1,0), Vector2(1,0)]:
-				if can_castle(board, current_square, direction):
-					valid.append(ChessPiece.Move.new(current_square, board.get_square(current_square.coordinates + 2*direction)))
+				var _move : ChessPiece.Move = get_castle_move(board, current_square, direction)
+				if _move != null:
+					valid.append(_move)
 		return valid
 
-	func can_castle(board:ChessBoard, current_square:ChessBoard.Square, direction:Vector2):
+	func get_castle_move(board:ChessBoard, current_square:ChessBoard.Square, direction:Vector2):
+		var to_square:ChessBoard.Square = board.get_square(current_square.coordinates + direction * 2)
 		var next_piece_square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
 		if next_piece_square != null and next_piece_square.piece is Rook and !next_piece_square.piece.has_moved and next_piece_square.piece.color == color:
 			var threat_squares : Array[Vector2] = [current_square.coordinates,current_square.coordinates + direction, current_square.coordinates, current_square.coordinates + 2*direction]
 			for square in threat_squares:
 				if is_in_check(board, board.get_square(square)):
-					return false
-			return true
-		return false
+					return null
+			var incidental = ChessPiece.Move.new(next_piece_square, board.get_square(to_square.coordinates - direction))
+			return ChessPiece.Move.new(current_square, to_square, [incidental])
+		return null
 
 	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)->Array[ChessPiece.Take]:
 		var valid : Array[ChessPiece.Take] = []

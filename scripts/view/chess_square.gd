@@ -23,6 +23,11 @@ func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 			set_piece(null)
 		if move.to_square == square:
 			set_piece(move.to_square.piece)
+		for _move in move.incidental:
+			if _move.from_square == square:
+				set_piece(null)
+			if _move.to_square == square:
+				set_piece(_move.to_square.piece)
 	)
 
 	board.board.events.piece_taken.connect(func(take:ChessPiece.Take):
