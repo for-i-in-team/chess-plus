@@ -30,7 +30,7 @@ func set_square(sq : ChessSquareView):
 			remove_child(child)
 		return
 	
-	if current_turn == color:
+	if current_turn == color and square != null and square.square.piece != null and square.square.piece.color == color:
 		if sq.square in move_squares:
 			board.board.move(square.square, sq.square)
 		if sq.square in take_squares:
@@ -58,7 +58,7 @@ func set_highlights():
 	for sq in take_squares:
 		spawn_highlighter(board.get_square_view(sq), Color.RED)
 
-func spawn_highlighter(sq:ChessSquareView,color:Color):
+func spawn_highlighter(sq:ChessSquareView,_color:Color):
 	var highlight = highlighter.instantiate()
-	highlight.init(sq,color)
+	highlight.init(sq,_color)
 	add_child(highlight)
