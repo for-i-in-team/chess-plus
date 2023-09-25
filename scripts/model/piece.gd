@@ -10,6 +10,13 @@ class Take:
 		self.to_square = _to_square
 		self.targets = _targets
 
+	func get_value():
+		var value = 0
+		for target in targets:
+			if target.piece != null:
+				value += target.piece.point_value
+		return value
+
 class Move:
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square

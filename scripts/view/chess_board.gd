@@ -5,6 +5,7 @@ extends Node2D
 @export var board_size : Vector2 = Vector2(8,8)
 @export var input : ChessInput
 var board :ChessBoard
+var bot : ChessAI
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -19,6 +20,8 @@ func _ready():
 
 
 	board.events.game_over.connect(func(color:ChessPiece.PieceColor):print("Color Won: " + color.name))
+	board.events.stalemated.connect(func(color:ChessPiece.PieceColor):print("Color Tied: " + color.name))
+	bot = ChessAI.new(ChessPiece.PieceColor.black, board)
 
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 	for child in get_children():
