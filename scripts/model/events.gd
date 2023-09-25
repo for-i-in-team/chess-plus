@@ -9,3 +9,6 @@ signal color_lost(color:ChessPiece.PieceColor)
 signal game_over(winner:ChessPiece.PieceColor)
 
 signal turn_started(color:ChessPiece.PieceColor)
+
+signal promote_piece(square:ChessBoard.Square)
+

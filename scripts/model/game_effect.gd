@@ -41,3 +41,16 @@ class EndOnCheckmate:
 		var new:EndOnCheckmate = EndOnCheckmate.new()
 		new.set_board(_board)
 		return new
+class PiecesPromoteToQueens:
+	extends GameEffect
+
+	func set_board(_board:ChessBoard):
+		super.set_board(_board)
+		_board.events.promote_piece.connect(func(square): promote_pawn(square))
+
+	func promote_pawn(square:ChessBoard.Square):
+		if square.piece != null:
+			square.piece = TraditionalPieces.Queen.new(square.piece.color)
+
+
+	
