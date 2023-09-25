@@ -16,23 +16,18 @@ class EndOnCheckmate:
 		_board.events.turn_started.connect(func(color): handle_move(color))
 
 	func handle_move(color:ChessPiece.PieceColor):
-		var opponent:ChessPiece.PieceColor 
-		if color == ChessPiece.PieceColor.white:
-			opponent = ChessPiece.PieceColor.black
-		else:
-			opponent = ChessPiece.PieceColor.white
-		if is_checkmate(board, opponent):
-			board.events.color_lost.emit(opponent)
+		if is_checkmate(board, color):
+			board.events.color_lost.emit(color)
 
 	func is_checkmate(_board:ChessBoard, color):
 		var no_pieces:bool = true
 		var checkable_pieces:Array[ChessBoard.Square] = []
 		for row in board.board:
-				for square in row.row:
-					if square.piece != null && square.piece.color == color:
-						no_pieces = false 
-						if square.piece.has_method("is_in_check"):
-							checkable_pieces.append(square)
+			for square in row.row:
+				if square.piece != null && square.piece.color == color:
+					no_pieces = false 
+					if square.piece.has_method("is_in_check"):
+						checkable_pieces.append(square)
 		if no_pieces:
 			return true
 		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
