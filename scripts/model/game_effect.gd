@@ -13,11 +13,13 @@ class EndOnCheckmate:
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.turn_started.connect(func(color): handle_move(color))
+		_board.events.turn_started.connect_sig(func(color): handle_move(color))
 
 	func handle_move(color:ChessPiece.PieceColor):
+		print(Time.get_unix_time_from_system (), ": ", "EndOnCheckMate start")
 		if is_checkmate(board, color):
-			board.events.color_lost.emit(color)
+			board.events.color_lost.emit([color])
+		print(Time.get_unix_time_from_system (), ": ", "EndOnCheckMate start")
 
 	func is_checkmate(_board:ChessBoard, color):
 		var no_pieces:bool = true
@@ -47,11 +49,11 @@ class EndOnStalemate:
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.turn_started.connect(func(color): handle_move(color))
+		_board.events.turn_started.connect_sig(func(color): handle_move(color))
 
 	func handle_move(color:ChessPiece.PieceColor):
 		if is_stalemate(board, color):
-			board.events.stalemated.emit(color)
+			board.events.stalemated.emit([color])
 
 	func is_stalemate(_board:ChessBoard, color):
 		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
@@ -68,11 +70,9 @@ class PiecesPromoteToQueens:
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.promote_piece.connect(func(square): promote_pawn(square))
+		_board.events.promote_piece.connect_sig(func(square): promote_pawn(square))
 
 	func promote_pawn(square:ChessBoard.Square):
 		if square.piece != null:
 			square.piece = TraditionalPieces.Queen.new(square.piece.color)
-
-
 	

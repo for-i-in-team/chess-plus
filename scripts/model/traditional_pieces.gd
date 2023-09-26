@@ -19,7 +19,7 @@ class Pawn:
 		has_moved = true
 		var next_square:Vector2 = _move.to_square.coordinates + color.move_direction
 		if next_square.y < 0 or next_square.y >= board.size.y or next_square.x < 0 or next_square.x >= board.size.x:
-			board.events.promote_piece.emit(_move.to_square)
+			board.events.promote_piece.emit([_move.to_square])
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
 		var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + color.move_direction)

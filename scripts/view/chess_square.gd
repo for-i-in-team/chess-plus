@@ -18,7 +18,7 @@ func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 	$sprite.modulate = square.color.color
 	position =  Vector2(square.coordinates.x, board.board.size.y-1 -square.coordinates.y) * $sprite.texture.get_width()*$sprite.scale
 	set_piece(square.piece)
-	board.board.events.piece_moved.connect(func(move:ChessPiece.Move):
+	board.board.events.piece_moved.connect_sig(func(move:ChessPiece.Move):
 		if move.from_square == square:
 			set_piece(null)
 		if move.to_square == square:
@@ -30,7 +30,7 @@ func init(board: ChessBoardView, chess_square:ChessBoard.Square):
 				set_piece(_move.to_square.piece)
 	)
 
-	board.board.events.piece_taken.connect(func(take:ChessPiece.Take):
+	board.board.events.piece_taken.connect_sig(func(take:ChessPiece.Take):
 		if take.from_square == square or square in take.targets:
 			set_piece(null)
 		if take.to_square == square:

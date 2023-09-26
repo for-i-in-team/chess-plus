@@ -5,7 +5,7 @@ extends GameEffect
 
 func set_board(_board:ChessBoard):
 	super.set_board(_board)
-	_board.events.piece_taken.connect(func(take): explode(take))
+	_board.events.piece_taken.connect_sig(func(take): explode(take))
 
 func explode(take:ChessPiece.Take):
 	if take is BombTake:
@@ -21,7 +21,7 @@ func explode(take:ChessPiece.Take):
 
 
 	var new_take:BombTake = BombTake.new(take.to_square, take.to_square, targets)
-	board.events.piece_taken.emit(new_take)
+	board.events.piece_taken.emit([new_take])
 
 
 func copy(_board:ChessBoard):

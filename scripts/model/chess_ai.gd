@@ -7,13 +7,14 @@ func _init(_color : ChessPiece.PieceColor, _board : ChessBoard):
 	color = _color
 	board = _board
 
-	board.events.turn_started.connect(func (_color : ChessPiece.PieceColor):
+	board.events.turn_started.connect_sig(func (_color : ChessPiece.PieceColor):
 		if _color == color:
 			play_turn()
 	)
 
 
 func play_turn():
+	print(Time.get_unix_time_from_system (), ": ", "Play Turn Start")
 	var takes = board.get_all_takes(color)
 	if len(takes) > 0:
 		var best_take = takes[randi() % len(takes)]
@@ -26,3 +27,4 @@ func play_turn():
 		if len(moves)>0:
 			var move = moves[randi() % len(moves)]
 			board.move(move.from_square, move.to_square)
+	print(Time.get_unix_time_from_system (), ": ", "Play Turn End")

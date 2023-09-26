@@ -1,15 +1,15 @@
 class_name Events
 
-signal piece_moved(move: ChessPiece.Move)
+var piece_moved = Utils.AsyncSignal.new(["move: ChessPiece.Move"])
 
-signal piece_taken(take : ChessPiece.Take)
+var piece_taken = Utils.AsyncSignal.new(["take : ChessPiece.Take"])
 
-signal color_lost(color:ChessPiece.PieceColor)
+var color_lost = Utils.AsyncSignal.new(["color:ChessPiece.PieceColor"])
 
-signal game_over(winner:ChessPiece.PieceColor)
+var game_over = Utils.AsyncSignal.new(["winner:ChessPiece.PieceColor"])
 
-signal turn_started(color:ChessPiece.PieceColor)
+var turn_started = Utils.AsyncSignal.new(["color:ChessPiece.PieceColor"])
 
-signal promote_piece(square:ChessBoard.Square)
+var promote_piece = Utils.AsyncSignal.new(["square:ChessBoard.Square"])
 
-signal stalemated(color:ChessPiece.PieceColor)
+var stalemated = Utils.AsyncSignal.new(["color:ChessPiece.PieceColor"])

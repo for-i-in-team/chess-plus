@@ -16,7 +16,7 @@ func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_tu
 	current_turn = _current_turn
 	set_square(chess_square)
 
-	board.board.events.turn_started.connect(func(_color):set_turn(_color))
+	board.board.events.turn_started.connect_sig(func(_color):set_turn(_color))
 
 func set_turn(_color:ChessPiece.PieceColor):
 	current_turn = _color
@@ -32,6 +32,7 @@ func set_square(sq : ChessSquareView):
 	
 	if current_turn == color and square != null and square.square.piece != null and square.square.piece.color == color:
 		if sq.square in move_squares:
+			print(Time.get_unix_time_from_system(), ": ", "Square Move Start")
 			board.board.move(square.square, sq.square)
 		if sq.square in take_squares:
 			board.board.take(square.square, sq.square)
