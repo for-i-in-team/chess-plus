@@ -1,30 +1,42 @@
 class_name Utils
 
 class AsyncSignal:
-	signal _base(id:int, args:Array)
+	signal _base(instance:_AsyncSignalInstance, args:Array)
 	signal _complete(id:int)
-	var running :Dictionary = {}
+	var running: Dictionary = {}
+	var name:String
 
 	func _init(_args:Array):
-		pass
+		name = _args[0]
 
 	func connect_sig(fn:Callable):
-		var inner_fn : Callable = func(id: int, args:Array):
+		var inner_fn : Callable = func(instance:_AsyncSignalInstance, args:Array):
 			await(fn.callv(args))
-			_complete.emit(id)
+			instance.complete.emit()
 		_base.connect(inner_fn)
 
 	func emit(args:Array):
-		var id = randi()
-		print(Time.get_unix_time_from_system (), ": ", "Emit Start ", id)
-		running[id] = len(_base.get_connections())
-		check_completion(id)
-		_base.emit(id, args)
-		await(check_completion(id))
-		print(Time.get_unix_time_from_system (), ": ", "Emit End ", id)
+		var instance : _AsyncSignalInstance = _AsyncSignalInstance.new()
+		await(instance.emit(args, len(_base.get_connections()), func(instance:_AsyncSignalInstance, args:Array):
+			_base.emit(instance, args)
+		))
 
-	func check_completion(id:int):
-		while running[id] > 0:
-			var event_id = await(_complete)
-			if id == event_id:
-				running[id] -= 1
+
+
+class _AsyncSignalInstance:
+	signal complete()
+
+	signal all_complete()
+	var running:int = 0
+
+	func emit(args:Array, num_listeners:int, callback:Callable):
+		running = num_listeners
+		track_completion()
+		callback.call(self, args)
+		await(all_complete)
+
+	func track_completion():
+		while running > 0:
+			await(complete)
+			running -= 1
+		all_complete.emit()
