@@ -21,10 +21,10 @@ func play_turn():
 		for take in takes:
 			if take.get_value() > best_take.get_value():
 				best_take = take
-		board.take(best_take.from_square, best_take.to_square)
+		await(board.take(best_take.from_square, best_take.to_square))
 	else:
 		var moves = board.get_all_moves(color)
 		if len(moves)>0:
 			var move = moves[randi() % len(moves)]
-			board.move(move.from_square, move.to_square)
+			await(board.move(move.from_square, move.to_square))
 	print(Time.get_unix_time_from_system (), ": ", "Play Turn End")

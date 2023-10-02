@@ -16,10 +16,8 @@ class EndOnCheckmate:
 		_board.events.turn_started.connect_sig(func(color): handle_move(color))
 
 	func handle_move(color:ChessPiece.PieceColor):
-		print(Time.get_unix_time_from_system (), ": ", "EndOnCheckMate start")
 		if is_checkmate(board, color):
 			board.events.color_lost.emit([color])
-		print(Time.get_unix_time_from_system (), ": ", "EndOnCheckMate start")
 
 	func is_checkmate(_board:ChessBoard, color):
 		var no_pieces:bool = true

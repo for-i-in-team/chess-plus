@@ -29,13 +29,11 @@ func set_square(sq : ChessSquareView):
 		for child in get_children():
 			remove_child(child)
 		return
-	
 	if current_turn == color and square != null and square.square.piece != null and square.square.piece.color == color:
 		if sq.square in move_squares:
-			print(Time.get_unix_time_from_system(), ": ", "Square Move Start")
-			board.board.move(square.square, sq.square)
+			await(board.board.move(square.square, sq.square))
 		if sq.square in take_squares:
-			board.board.take(square.square, sq.square)
+			await(board.board.take(square.square, sq.square))
 
 	square = sq
 

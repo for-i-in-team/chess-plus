@@ -1,5 +1,3 @@
-
-
 class_name ChessBoard
 
 var size :Vector2
@@ -20,7 +18,7 @@ func _init(board_size:Vector2, _constraints:Array[GameConstraint] = [], _colors:
 	for i in range(board_size.y):
 		size = board_size
 		board.append(BoardRow.new(i,size.x as int))
-	events.color_lost.connect_sig(func(color):handle_color_loss(color))
+	events.color_lost.connect_sig(func(color):await(handle_color_loss(color)))
 
 func next_turn():
 	var index:int = colors.find(current_turn)
@@ -35,7 +33,7 @@ func next_turn():
 func handle_color_loss(color:ChessPiece.PieceColor):
 	colors.erase(color)
 	if len(colors) == 1:
-		events.game_over.emit([colors[0]])
+		await(events.game_over.emit([colors[0]]))
 
 func get_colors():
 	var _colors:Array[ChessPiece.PieceColor] = []
@@ -82,8 +80,7 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	var piece:ChessPiece = origin_square.piece
 	piece.move(self, _move)
 	
-	print("Piece Move")
-	events.piece_moved.emit([_move])
+	await(events.piece_moved.emit([_move]))
 	next_turn()
 
 func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
@@ -95,8 +92,7 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 			break
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
 	origin_square.piece.take(self, _take)
-	
-	events.piece_taken.emit([_take])
+	await(events.piece_taken.emit([_take]))
 	next_turn()
 
 func get_valid_moves(origin_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
