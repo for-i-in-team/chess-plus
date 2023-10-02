@@ -9,6 +9,7 @@ var move_squares: Array[ChessBoard.Square]
 var take_squares: Array[ChessBoard.Square]
 var color : ChessPiece.PieceColor
 var current_turn : ChessPiece.PieceColor
+var moving: bool = false
 
 func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_turn:ChessPiece.PieceColor, chess_square: ChessSquareView=null):
 	board = chess_board
@@ -20,6 +21,13 @@ func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_tu
 
 func set_turn(_color:ChessPiece.PieceColor):
 	current_turn = _color
+
+func handle_selection(sq: ChessSquareView):
+	if not moving:
+		moving = true
+		await(set_square(sq))
+		moving = false
+	
 
 func set_square(sq : ChessSquareView):
 	if sq == null:

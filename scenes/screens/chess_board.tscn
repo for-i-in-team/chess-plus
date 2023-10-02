@@ -9,7 +9,6 @@ position = Vector2(300, 60)
 scale = Vector2(0.75, 0.75)
 script = ExtResource("1_1h38s")
 chess_square_node = ExtResource("2_v8kxj")
-board_size = null
 input = NodePath("input")
 
 [node name="input" parent="." instance=ExtResource("3_ujaaq")]

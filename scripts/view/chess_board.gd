@@ -15,12 +15,14 @@ func _ready():
 			var square_view:ChessSquareView = chess_square_node.instantiate()
 			square_view.init(self, square)
 			add_child(square_view)
-			square_view.square_selected.connect(input.set_square)
+			square_view.square_selected.connect(input.handle_selection)
 	input.init(self, ChessPiece.PieceColor.white, board.current_turn)
 
 
 	board.events.game_over.connect_sig(func(color:ChessPiece.PieceColor):print("Color Won: " + color.name))
 	board.events.stalemated.connect_sig(func(color:ChessPiece.PieceColor):print("Color Tied: " + color.name))
+
+	
 	bot = ChessAI.new(ChessPiece.PieceColor.black, board)
 
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
