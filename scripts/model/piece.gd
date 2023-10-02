@@ -1,11 +1,13 @@
 class_name ChessPiece
 
 class Take:
+	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
 	var targets : Array[ChessBoard.Square]
 
-	func _init(_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _targets : Array[ChessBoard.Square]):
+	func _init(_piece:ChessPiece,_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _targets : Array[ChessBoard.Square]):
+		self.piece = _piece
 		self.from_square = _from_square
 		self.to_square = _to_square
 		self.targets = _targets
@@ -18,11 +20,13 @@ class Take:
 		return value
 
 class Move:
+	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
 	var incidental : Array[Move]
 
-	func _init(_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _incidental : Array[Move] = []):
+	func _init(_piece:ChessPiece, _from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _incidental : Array[Move] = []):
+		piece = _piece
 		from_square = _from_square
 		to_square = _to_square
 		incidental = _incidental
@@ -77,7 +81,7 @@ func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 	return []
 
 func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square) -> Take:
-	return Take.new(current_square, target_square, [target_square])
+	return Take.new(self, current_square, target_square, [target_square])
 
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
 	var valid:Array[ChessBoard.Square] = []
@@ -109,7 +113,8 @@ func test_in_direction(board: ChessBoard, start: ChessBoard.Square, direction: V
 	return new_square
 
 func copy() -> ChessPiece:
-	return self
+	assert(false, "copy not implemented")
+	return null
 
 func _to_string():
 	return color.name + " " + name
