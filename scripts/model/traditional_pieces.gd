@@ -21,6 +21,10 @@ class Pawn:
 		if next_square.y < 0 or next_square.y >= board.size.y or next_square.x < 0 or next_square.x >= board.size.x:
 			board.events.promote_piece.emit([_move.to_square])
 
+	func take(board:ChessBoard, _take:ChessPiece.Take):
+		super.take(board, _take)
+		has_moved = true
+
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
 		var new_square : ChessBoard.Square = board.get_square(current_square.coordinates + color.move_direction)
 		if new_square == null or new_square.piece != null:
@@ -80,6 +84,10 @@ class Rook:
 
 	func move(board: ChessBoard, _move:ChessPiece.Move):
 		super.move(board, _move)
+		has_moved = true
+
+	func take(board:ChessBoard, _take:ChessPiece.Take):
+		super.take(board, _take)
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
@@ -189,6 +197,10 @@ class King:
 	
 	func move(board: ChessBoard, _move:Move):
 		super.move(board, _move)
+		has_moved = true
+
+	func take(board:ChessBoard, _take:ChessPiece.Take):
+		super.take(board, _take)
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
