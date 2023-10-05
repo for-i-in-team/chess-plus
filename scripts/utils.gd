@@ -33,7 +33,11 @@ class _AsyncSignalInstance:
 		running = num_listeners
 		track_completion()
 		callback.call(self, args)
-		await(all_complete)
+		await(is_complete())
+
+	func is_complete():
+		if running != 0:
+			await(all_complete)
 
 	func track_completion():
 		while running > 0:
