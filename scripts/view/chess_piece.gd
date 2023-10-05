@@ -42,9 +42,15 @@ func init(_board:ChessBoardView, chess_piece:ChessPiece):
 				break
 	)
 
+	board.board.events.piece_change.connect_sig(func(old_piece:ChessPiece, new_piece:ChessPiece):
+		if old_piece == piece:
+			piece = new_piece
+			$sprite.texture = get_image(piece)
+			$sprite.modulate = piece.color.color
+	)
+
 func move(from_square:ChessBoard.Square, to_square:ChessBoard.Square):
 	if from_square != to_square:
-		var from_view : ChessSquareView = board.get_square_view(from_square)
 		var to_view : ChessSquareView = board.get_square_view(to_square)
 		target_dest = to_view.global_position
 		initial_position = global_position
@@ -55,7 +61,7 @@ func move(from_square:ChessBoard.Square, to_square:ChessBoard.Square):
 		await(move_complete)
 
 		moving = false
-		from_view.remove_child(self)
+		get_parent().remove_child(self)
 		to_view.add_child(self)
 		position = Vector2(0,0)
 

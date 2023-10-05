@@ -68,9 +68,17 @@ class PiecesPromoteToQueens:
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.promote_piece.connect_sig(func(square): promote_pawn(square))
+		board.events.piece_moved.connect_sig(func(move): await(promote_pawn(move)))
 
-	func promote_pawn(square:ChessBoard.Square):
-		if square.piece != null:
-			square.piece = TraditionalPieces.Queen.new(square.piece.color)
-	
+	func promote_pawn(move:ChessPiece.Move):
+		if move.piece is TraditionalPieces.Pawn:
+			var next_square:Vector2 = move.to_square.coordinates + move.piece.color.move_direction
+			if next_square.y < 0 or next_square.y >= board.size.y or next_square.x < 0 or next_square.x >= board.size.x:
+				# Check whether the piece is null in case it was taken as part of the move
+				if move.to_square.piece != null:
+					var old_piece:ChessPiece = move.to_square.piece
+					move.to_square.piece = TraditionalPieces.Queen.new(move.to_square.piece.color)
+					move.piece = move.to_square.piece
+					await(board.events.piece_change.emit([old_piece, move.to_square.piece]))
+
+			

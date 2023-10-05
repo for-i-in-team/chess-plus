@@ -17,9 +17,6 @@ class Pawn:
 			var en_passantable_coord :Vector2 = _move.to_square.coordinates - color.move_direction
 			en_passantable_coords.append(board.get_square(en_passantable_coord))
 		has_moved = true
-		var next_square:Vector2 = _move.to_square.coordinates + color.move_direction
-		if next_square.y < 0 or next_square.y >= board.size.y or next_square.x < 0 or next_square.x >= board.size.x:
-			board.events.promote_piece.emit([_move.to_square])
 
 	func take(board:ChessBoard, _take:ChessPiece.Take):
 		super.take(board, _take)

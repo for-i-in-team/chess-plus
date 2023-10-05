@@ -13,3 +13,5 @@ var turn_started = Utils.AsyncSignal.new(["color:ChessPiece.PieceColor"])
 var promote_piece = Utils.AsyncSignal.new(["square:ChessBoard.Square"])
 
 var stalemated = Utils.AsyncSignal.new(["color:ChessPiece.PieceColor"])
+
+var piece_change = Utils.AsyncSignal.new(["old_piece:ChessPiece", "new_piece:ChessPiece"])
