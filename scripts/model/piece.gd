@@ -1,5 +1,10 @@
 class_name ChessPiece
 
+class Direction:
+	static var ALL : Array[Vector2] =  [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
+	static var DIAGONAL : Array[Vector2] = [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]
+	static var ORTHOGONAL : Array[Vector2] = [Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
+
 class Take:
 	var piece : ChessPiece
 	var from_square : ChessBoard.Square
@@ -47,7 +52,6 @@ class PieceColor:
 	func get_perpendicular_direction():
 		return Vector2(move_direction.y, move_direction.x)
 
-const ALL_DIRECTIONS : Array[Vector2] =  [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
 
 var name : String
 var color : PieceColor
