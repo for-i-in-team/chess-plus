@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://v0asoh4qp3vq"]
+
+[ext_resource type="Texture2D" uid="uid://b747vyu1rfuoo" path="res://resources/pixel.png" id="1_kjits"]
+[ext_resource type="Script" path="res://scripts/view/square_highlight.gd" id="2_n1nc8"]
+
+[node name="highlighter" type="Sprite2D"]
+texture = ExtResource("1_kjits")
+script = ExtResource("2_n1nc8")
