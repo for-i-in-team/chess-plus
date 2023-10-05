@@ -12,14 +12,14 @@ class Pawn:
 		super._init("Pawn", _color, 1)
 
 	func move(board: ChessBoard, _move:ChessPiece.Move):
-		super.move(board, _move)
+		await(super.move(board, _move))
 		if (_move.from_square.coordinates - _move.to_square.coordinates).length() > 1:
 			var en_passantable_coord :Vector2 = _move.to_square.coordinates - color.move_direction
 			en_passantable_coords.append(board.get_square(en_passantable_coord))
 		has_moved = true
 
 	func take(board:ChessBoard, _take:ChessPiece.Take):
-		super.take(board, _take)
+		await(super.take(board, _take))
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
@@ -80,11 +80,11 @@ class Rook:
 		super._init("Rook", _color, 5)
 
 	func move(board: ChessBoard, _move:ChessPiece.Move):
-		super.move(board, _move)
+		await(super.move(board, _move))
 		has_moved = true
 
 	func take(board:ChessBoard, _take:ChessPiece.Take):
-		super.take(board, _take)
+		await(super.take(board, _take))
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
@@ -193,11 +193,11 @@ class King:
 		super._init("King", _color, 0)
 	
 	func move(board: ChessBoard, _move:Move):
-		super.move(board, _move)
+		await(super.move(board, _move))
 		has_moved = true
 
 	func take(board:ChessBoard, _take:ChessPiece.Take):
-		super.take(board, _take)
+		await(super.take(board, _take))
 		has_moved = true
 
 	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
