@@ -1,9 +1,7 @@
-class_name ChessPiece
+class_name ChessPiece	
 
-class Direction:
-	static var ALL : Array[Vector2] =  [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1),Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
-	static var DIAGONAL : Array[Vector2] = [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]
-	static var ORTHOGONAL : Array[Vector2] = [Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
+class PieceModifier:
+	pass
 
 class Take:
 	var piece : ChessPiece
@@ -56,11 +54,17 @@ class PieceColor:
 var name : String
 var color : PieceColor
 var point_value : float
+var move_directions:Array[PieceMovement.MovePattern]
+var take_directions:Array[PieceMovement.Pattern]
+var modifiers:Array[PieceModifier]
 
-func _init(_name, _color, _point_value):
+func _init(_name, _color:PieceColor, _point_value:int, _move_directions:Array[PieceMovement.MovePattern], _take_directions:Array[PieceMovement.Pattern], _modifiers:Array[PieceModifier] = []):
 	name = _name
 	color = _color
 	point_value = _point_value
+	move_directions = _move_directions
+	take_directions = _take_directions
+	modifiers = _modifiers
 
 func move(_board: ChessBoard, _move:Move):
 	_move.from_square.piece = null
@@ -71,8 +75,12 @@ func move(_board: ChessBoard, _move:Move):
 		incidental_move.to_square.piece = piece
 
 func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[Move]:
-	assert(false, "get_valid_moves not implemented " + current_square.to_string() + board.to_string())
-	return []
+	var moves : Array[Move] = []
+	
+	for direction in move_directions:
+		moves.append_array(direction.get_valid_moves(board, current_square))
+	
+	return moves
 
 func take(_board:ChessBoard, _take:Take):
 	_take.from_square.piece = null
