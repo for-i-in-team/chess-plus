@@ -6,7 +6,7 @@ class Direction:
 	static var DIAGONAL : Array[Vector2] = [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]
 	static var ORTHOGONAL : Array[Vector2] = [Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
 
-class Pattern:
+class MovePattern:
 	var directions : Array[Vector2]
 	var distance:int
 	var jumps_pieces:bool
