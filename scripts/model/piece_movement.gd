@@ -44,3 +44,30 @@ class MovePattern:
 		return moves
 
 	
+class TakePattern:
+	extends Pattern
+
+	func get_valid_takes(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
+		var takes:Array[ChessPiece.Take] = []
+
+		for direction in directions:
+			if distance > 0:
+				for i in range(distance):
+					var square:ChessBoard.Square = board.get_square(current_square.coordinates + direction * (i+1))
+					if square == null: # AUDIT Check whether this will make sense with jumping pieces
+						break
+					else:
+						if square.piece != null:
+							takes.append(piece.get_take_for_square(board, current_square, square))
+							break
+			else:
+				var next_square = board.get_square(current_square.coordinates + direction)
+				while next_square != null:
+					if next_square.piece != null:
+						takes.append(piece.get_take_for_square(board, current_square, next_square))
+						break
+					else:
+						next_square = board.get_square(next_square.coordinates + direction)
+
+		return takes
+

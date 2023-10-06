@@ -9,7 +9,7 @@ class Pawn:
 	var en_passantable_coords : Array[ChessBoard.Square] = []
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Pawn", _color, 1, [PieceMovement.MovePattern.new([_color.move_direction],1)], [])
+		super._init("Pawn", _color, 1, [PieceMovement.MovePattern.new([_color.move_direction],1)], [PieceMovement.TakePattern.new([_color.move_direction + _color.get_perpendicular_direction(), _color.move_direction - _color.get_perpendicular_direction()],1)])
 
 	func move(board: ChessBoard, _move:ChessPiece.Move):
 		await(super.move(board, _move))
@@ -30,20 +30,6 @@ class Pawn:
 				valid.append(ChessPiece.Move.new(self, current_square,new_square))
 
 		return valid
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
-		var take_squares : Array[ChessBoard.Square] = [
-			board.get_square(current_square.coordinates + color.move_direction + color.get_perpendicular_direction()),
-			board.get_square(current_square.coordinates + color.move_direction - color.get_perpendicular_direction())
-		]
-		var valid_takes : Array[ChessPiece.Take] = []
-		for square in take_squares:
-			if square != null:
-				var square_take : Take = get_take_for_square(board, current_square, square)
-				if square_take.targets.size() > 0:
-					valid_takes.append(square_take)
-
-		return valid_takes
 
 	func get_take_for_square(board:ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
 		var _take = ChessPiece.Take.new(self, current_square, target_square, [])
@@ -74,7 +60,7 @@ class Rook:
 	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Rook", _color, 5, [PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [])
+		super._init("Rook", _color, 5, [PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)])
 
 	func move(board: ChessBoard, _move:ChessPiece.Move):
 		await(super.move(board, _move))
@@ -84,14 +70,6 @@ class Rook:
 		await(super.take(board, _take))
 		has_moved = true
 
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
-		var valid : Array[ChessPiece.Take] = []
-		for direction in PieceMovement.Direction.ORTHOGONAL:
-			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
-			if square != null and square.piece.color != color:
-				valid.append(get_take_for_square(board, current_square, square))
-		return valid
-		
 	func copy() -> ChessPiece:
 		var new_rook : Rook = Rook.new(color)
 		new_rook.has_moved = has_moved
@@ -101,15 +79,7 @@ class Bishop:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Bishop", _color, 3, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL)], [])
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
-		var valid : Array[ChessPiece.Take] = []
-		for direction in PieceMovement.Direction.DIAGONAL:
-			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
-			if square != null and square.piece.color != color:
-				valid.append(get_take_for_square(board, current_square, square))
-		return valid
+		super._init("Bishop", _color, 3, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL)])
 
 	func copy() -> ChessPiece:
 		return Bishop.new(color)
@@ -121,15 +91,7 @@ class Knight:
 	const KNIGHT_DIRECTIONS:Array[Vector2] = [Vector2(1,2), Vector2(-1,2), Vector2(1,-2), Vector2(-1,-2), Vector2(2,1), Vector2(-2,1), Vector2(2,-1), Vector2(-2,-1)]
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Knight", _color, 3, [PieceMovement.MovePattern.new(KNIGHT_DIRECTIONS, 1)], [])
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Take]:
-		var valid : Array[ChessPiece.Take] = []
-		for direction in KNIGHT_DIRECTIONS:
-			var square = board.get_square(current_square.coordinates + direction)
-			if square != null and square.piece != null and square.piece.color != color:
-				valid.append(get_take_for_square(board, current_square, square))
-		return valid
+		super._init("Knight", _color, 3, [PieceMovement.MovePattern.new(KNIGHT_DIRECTIONS, 1)], [PieceMovement.TakePattern.new(KNIGHT_DIRECTIONS, 1)])
 
 	func copy() -> ChessPiece:
 		return Knight.new(color)
@@ -139,16 +101,8 @@ class Queen:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Queen", _color, 8, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [])
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)-> Array[ChessPiece.Take]:
-		var valid : Array[ChessPiece.Take] = []
-		for direction in PieceMovement.Direction.ALL:
-			var square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
-			if square != null and square.piece.color != color:
-				valid.append(get_take_for_square(board, current_square, square))
-		return valid
-
+		super._init("Queen", _color, 8, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL),PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)])
+		
 	func copy() -> ChessPiece:
 		return Queen.new(color)
 
@@ -158,7 +112,7 @@ class King:
 	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL, 1),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL, 1)], [])
+		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL, 1),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL, 1)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL, 1),PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL, 1)])
 	
 	func move(board: ChessBoard, _move:Move):
 		await(super.move(board, _move))
@@ -188,14 +142,6 @@ class King:
 			var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction))
 			return ChessPiece.Move.new(self, current_square, to_square, [incidental])
 		return null
-
-	func get_valid_takes(board:ChessBoard, current_square:ChessBoard.Square)->Array[ChessPiece.Take]:
-		var valid : Array[ChessPiece.Take] = []
-		for direction in PieceMovement.Direction.ALL:
-			var square = board.get_square(current_square.coordinates + direction)
-			if square != null and square.piece != null and square.piece.color != color:
-				valid.append(get_take_for_square(board, current_square, square))
-		return valid
 
 	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square) -> bool:
 		for row in board.board:
