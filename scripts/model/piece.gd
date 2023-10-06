@@ -54,16 +54,16 @@ class PieceColor:
 var name : String
 var color : PieceColor
 var point_value : float
-var move_directions:Array[PieceMovement.MovePattern]
-var take_directions:Array[PieceMovement.Pattern]
+var move_patterns:Array[PieceMovement.MovePattern]
+var take_patterns:Array[PieceMovement.TakePattern]
 var modifiers:Array[PieceModifier]
 
-func _init(_name, _color:PieceColor, _point_value:int, _move_directions:Array[PieceMovement.MovePattern], _take_directions:Array[PieceMovement.Pattern], _modifiers:Array[PieceModifier] = []):
+func _init(_name, _color:PieceColor, _point_value:int, _move_patterns:Array[PieceMovement.MovePattern], _take_patterns:Array[PieceMovement.TakePattern], _modifiers:Array[PieceModifier] = []):
 	name = _name
 	color = _color
 	point_value = _point_value
-	move_directions = _move_directions
-	take_directions = _take_directions
+	move_patterns = _move_patterns
+	take_patterns = _take_patterns
 	modifiers = _modifiers
 
 func move(_board: ChessBoard, _move:Move):
@@ -77,8 +77,8 @@ func move(_board: ChessBoard, _move:Move):
 func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Array[Move]:
 	var moves : Array[Move] = []
 	
-	for direction in move_directions:
-		moves.append_array(direction.get_valid_moves(board, current_square))
+	for pattern in move_patterns:
+		moves.append_array(pattern.get_valid_moves(self, board, current_square))
 	
 	return moves
 
@@ -89,8 +89,12 @@ func take(_board:ChessBoard, _take:Take):
 	_take.to_square.piece = self
 	
 func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Array[Take]:
-	assert(false, "get_valid_takes not implemented " + current_square.to_string() + board.to_string())
-	return []
+	var takes : Array[Take] = []
+
+	for pattern in take_patterns:
+		takes.append_array(pattern.get_valid_takes(self, board, current_square))
+
+	return takes
 
 func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square) -> Take:
 	return Take.new(self, current_square, target_square, [target_square])
