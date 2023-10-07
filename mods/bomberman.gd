@@ -20,7 +20,7 @@ func explode(take:ChessPiece.Take):
 			square = board.get_square(square.coordinates + direction)
 
 
-	var new_take:BombTake = BombTake.new(take.piece, take.to_square, take.to_square, targets)
+	var new_take:BombTake = BombTake.new(take.piece, take.to_square, take.to_square, [], targets)
 	await(board.events.piece_taken.emit([new_take]))
 
 

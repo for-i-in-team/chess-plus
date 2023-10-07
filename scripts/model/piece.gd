@@ -8,12 +8,14 @@ class Take:
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
 	var targets : Array[ChessBoard.Square]
+	var traversed_squares : Array[ChessBoard.Square]
 
-	func _init(_piece:ChessPiece,_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _targets : Array[ChessBoard.Square]):
+	func _init(_piece:ChessPiece,_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _traversed_squares:Array[ChessBoard.Square], _targets : Array[ChessBoard.Square]):
 		self.piece = _piece
 		self.from_square = _from_square
 		self.to_square = _to_square
 		self.targets = _targets
+		self.traversed_squares = _traversed_squares
 
 	func get_value():
 		var value = 0
@@ -27,12 +29,14 @@ class Move:
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
 	var incidental : Array[Move]
+	var traversed_squares : Array[ChessBoard.Square]
 
-	func _init(_piece:ChessPiece, _from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _incidental : Array[Move] = []):
+	func _init(_piece:ChessPiece, _from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _traversed_squares:Array[ChessBoard.Square], _incidental : Array[Move] = []):
 		piece = _piece
 		from_square = _from_square
 		to_square = _to_square
 		incidental = _incidental
+		self.traversed_squares = _traversed_squares
 
 class PieceColor:
 	var name : String
@@ -96,8 +100,11 @@ func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 
 	return takes
 
-func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square) -> Take:
-	return Take.new(self, current_square, target_square, [target_square])
+func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square, traversed: Array[ChessBoard.Square]) -> Take:
+	var _take : Take = Take.new(self, current_square, target_square, traversed, [])
+	if target_square.piece != null:
+		_take.targets.append(target_square)
+	return _take
 
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
 	var valid:Array[ChessBoard.Square] = []

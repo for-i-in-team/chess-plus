@@ -27,12 +27,12 @@ class Pawn:
 		if !has_moved:
 			var new_square:ChessBoard.Square = board.get_square(current_square.coordinates + color.move_direction * 2)
 			if new_square != null and new_square.piece == null:
-				valid.append(ChessPiece.Move.new(self, current_square,new_square))
+				valid.append(ChessPiece.Move.new(self, current_square,new_square, [board.get_square(current_square.coordinates + color.move_direction)]))
 
 		return valid
 
-	func get_take_for_square(board:ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square):
-		var _take = ChessPiece.Take.new(self, current_square, target_square, [])
+	func get_take_for_square(board:ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square, traversed:Array[ChessBoard.Square]):
+		var _take = ChessPiece.Take.new(self, current_square, target_square, traversed, [])
 		if target_square.piece != null:
 			_take.targets.append(target_square)
 		
@@ -139,7 +139,7 @@ class King:
 			for square in threat_squares:
 				if is_in_check(board, board.get_square(square)):
 					return null
-			var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction))
+			var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction), []) # TODO Set up traversed squares
 			return ChessPiece.Move.new(self, current_square, to_square, [incidental])
 		return null
 

@@ -143,17 +143,21 @@ func validate_takes(takes:Array[ChessPiece.Take])-> Array[ChessPiece.Take]:
 func get_new_board_state_take(_take:ChessPiece.Take):
 	var new_board = copy()
 	var from_square : Square = new_board.get_square(_take.from_square.coordinates)
-	var new_take = ChessPiece.Take.new(from_square.piece, from_square, new_board.get_square(_take.to_square.coordinates), [])
+	var new_take = ChessPiece.Take.new(from_square.piece, from_square, new_board.get_square(_take.to_square.coordinates), [], [])
 	for sq in _take.targets:
 		new_take.targets.append(new_board.get_square(sq.coordinates))
+	for sq in _take.traversed_squares:
+		new_take.traversed_squares.append(new_board.get_square(sq.coordinates))
 	new_take.from_square.piece.take(new_board, new_take)
 	return new_board
 
 func get_new_board_state_move(_move: ChessPiece.Move) -> ChessBoard:
 	var new_board = copy()
-	var new_move : ChessPiece.Move = ChessPiece.Move.new(_move.piece.copy(), new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates))
+	var new_move : ChessPiece.Move = ChessPiece.Move.new(_move.piece.copy(), new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates), [])
 	for mv in _move.incidental:
-		new_move.incidental.append(ChessPiece.Move.new(mv.piece, new_board.get_square(mv.from_square.coordinates), new_board.get_square(mv.to_square.coordinates)))
+		new_move.incidental.append(ChessPiece.Move.new(mv.piece, new_board.get_square(mv.from_square.coordinates), new_board.get_square(mv.to_square.coordinates), []))
+	for sq in _move.traversed_squares:
+		new_move.traversed_squares.append(new_board.get_square(sq.coordinates))
 	new_move.from_square.piece.move(new_board, new_move)
 	return new_board
 
