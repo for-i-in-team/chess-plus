@@ -104,7 +104,7 @@ class Queen:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Queen", _color, 8, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL),PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)])
+		super._init("Queen", _color, 8, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL)])
 		
 	func copy() -> ChessPiece:
 		return Queen.new(color)
@@ -115,7 +115,7 @@ class King:
 	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL, 1),PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL, 1)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL, 1),PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL, 1)])
+		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)])
 	
 	func move(board: ChessBoard, _move:Move):
 		await(super.move(board, _move))
