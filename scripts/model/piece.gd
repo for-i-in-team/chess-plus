@@ -1,7 +1,21 @@
 class_name ChessPiece	
 
 class PieceModifier:
-	pass
+	func move(_piece:ChessPiece, _board: ChessBoard, _move:Move):
+		return move
+
+	func get_valid_moves(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, moves:Array[Move]) -> Array[Move]:
+		return moves
+
+	func take(_piece:ChessPiece, _board: ChessBoard, _take:Take):
+		return take
+
+	func get_valid_takes(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, takes:Array[Take]) -> Array[Take]:
+		return takes
+
+	func get_take_for_square(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, _target_square:ChessBoard.Square, existing_take:Take) -> Take:
+		return existing_take
+	
 
 class Take:
 	var piece : ChessPiece
@@ -71,6 +85,8 @@ func _init(_name, _color:PieceColor, _point_value:int, _move_patterns:Array[Piec
 	modifiers = _modifiers
 
 func move(_board: ChessBoard, _move:Move):
+	for modifier in modifiers:
+		_move = modifier.move(self, _board, _move)
 	_move.from_square.piece = null
 	_move.to_square.piece = self
 	for incidental_move in _move.incidental:
@@ -84,9 +100,14 @@ func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 	for pattern in move_patterns:
 		moves.append_array(pattern.get_valid_moves(self, board, current_square))
 	
+	for modifier in modifiers:
+		moves = modifier.get_valid_moves(self, board, current_square, moves)
+
 	return moves
 
 func take(_board:ChessBoard, _take:Take):
+	for modifier in modifiers:
+		_take = modifier.take(self, _board, _take)
 	_take.from_square.piece = null
 	for target_square in _take.targets:
 		target_square.piece = null
@@ -98,12 +119,17 @@ func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 	for pattern in take_patterns:
 		takes.append_array(pattern.get_valid_takes(self, board, current_square))
 
+	for modifier in modifiers:
+		takes = modifier.get_valid_takes(self, board, current_square, takes)
+
 	return takes
 
 func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square, traversed: Array[ChessBoard.Square]) -> Take:
 	var _take : Take = Take.new(self, current_square, target_square, traversed, [])
 	if target_square.piece != null:
 		_take.targets.append(target_square)
+	for modifier in modifiers:
+		_take = modifier.get_take_for_square(self, _board, current_square, target_square, _take)
 	return _take
 
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
