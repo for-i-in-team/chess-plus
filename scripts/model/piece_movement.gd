@@ -16,6 +16,12 @@ class Pattern:
 		distance = _distance
 		jumps_pieces = _jumps_pieces
 
+	func move(_piece:ChessPiece,_board:ChessBoard, _move:ChessPiece.Move):
+		pass
+
+	func take(_piece:ChessPiece,_board:ChessBoard, _take:ChessPiece.Take):
+		pass
+
 	func is_blocked(square:ChessBoard.Square):
 		return square == null or (not jumps_pieces and square.piece != null)
 
@@ -62,19 +68,19 @@ class TakePattern:
 					if square == null: # AUDIT Check whether this will make sense with jumping pieces
 						break
 					else:
-						var take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed)
-						if len(take.targets)>0:
-							takes.append(take)
+						var _take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed)
+						if len(_take.targets)>0:
+							takes.append(_take)
 							if is_blocked(square):
 								break
 					traversed.append(square)
 			else:
 				var next_square = board.get_square(current_square.coordinates + direction)
 				while next_square != null:
-					var take:ChessPiece.Take =piece.get_take_for_square(board, current_square, next_square, traversed)
+					var _take:ChessPiece.Take =piece.get_take_for_square(board, current_square, next_square, traversed)
 					traversed.append(next_square)
-					if len(take.targets)>0:
-						takes.append(take)
+					if len(_take.targets)>0:
+						takes.append(_take)
 						if is_blocked(next_square):
 							break
 					next_square = board.get_square(next_square.coordinates + direction)

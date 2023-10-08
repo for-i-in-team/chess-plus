@@ -90,6 +90,10 @@ func _init(_name, _color:PieceColor, _point_value:int, _move_patterns:Array[Piec
 func move(_board: ChessBoard, _move:Move):
 	for modifier in modifiers:
 		_move = modifier.move(self, _board, _move)
+	for pattern in move_patterns:
+		pattern.move(self, _board, _move)
+	for pattern in take_patterns:
+		pattern.move(self, _board, _move)
 	_move.from_square.piece = null
 	_move.to_square.piece = self
 	for incidental_move in _move.incidental:
@@ -111,6 +115,10 @@ func get_valid_moves(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 func take(_board:ChessBoard, _take:Take):
 	for modifier in modifiers:
 		_take = modifier.take(self, _board, _take)
+	for pattern in move_patterns:
+		pattern.take(self, _board, _take)
+	for pattern in take_patterns:
+		pattern.take(self, _board, _take)
 	_take.from_square.piece = null
 	for target_square in _take.targets:
 		target_square.piece = null
