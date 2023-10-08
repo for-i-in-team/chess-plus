@@ -32,42 +32,29 @@ class IsEnPassantable:
 		en_passantable_coords = _move.traversed_squares
 		return _move
 
-	
+class DoubleFirstMove:
+	extends PieceMovement.MovePattern
+
+	func _init(_directions:Array[Vector2], _distance:int, _jumps_pieces:bool = false):
+		super._init(_directions, _distance*2, _jumps_pieces)
+
+	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):
+		super.move(piece, board, _move)
+		distance = distance/2
+
+	func take(piece:ChessPiece, board: ChessBoard, _take:ChessPiece.Take):
+		super.take(piece, board, _take)
+		distance = distance/2
+
 
 class Pawn:
 	extends ChessPiece
 
-	var has_moved : bool = false
-	var en_passantable_coords : Array[ChessBoard.Square] = []
-
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Pawn", _color, 1, [PieceMovement.MovePattern.new([_color.move_direction],1)], [PieceMovement.TakePattern.new([_color.move_direction + _color.get_perpendicular_direction(), _color.move_direction - _color.get_perpendicular_direction()],1)], [CanEnPassant.new(), IsEnPassantable.new()])
-
-	func move(board: ChessBoard, _move:ChessPiece.Move):
-		await(super.move(board, _move))
-		has_moved = true
-
-	func take(board:ChessBoard, _take:ChessPiece.Take):
-		await(super.take(board, _take))
-		has_moved = true
-
-	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
-		var valid:Array[ChessPiece.Move] = super.get_valid_moves(board,current_square)
-		if !has_moved:
-			var new_square:ChessBoard.Square = board.get_square(current_square.coordinates + color.move_direction * 2)
-			if new_square != null and new_square.piece == null:
-				valid.append(ChessPiece.Move.new(self, current_square,new_square, [board.get_square(current_square.coordinates + color.move_direction)]))
-
-		return valid
-
-	func on_turn_start(turn_color: ChessPiece.PieceColor):
-		if turn_color == color:
-			en_passantable_coords = []
+		super._init("Pawn", _color, 1, [DoubleFirstMove.new([_color.move_direction],1)], [PieceMovement.TakePattern.new([_color.move_direction + _color.get_perpendicular_direction(), _color.move_direction - _color.get_perpendicular_direction()],1)], [CanEnPassant.new(), IsEnPassantable.new()])
 
 	func copy() -> ChessPiece:
 		var new_pawn : Pawn = Pawn.new(color)
-		new_pawn.has_moved = has_moved
-		new_pawn.en_passantable_coords = en_passantable_coords
 		return new_pawn
 			
 class Rook:

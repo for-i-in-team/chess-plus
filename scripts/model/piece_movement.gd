@@ -65,7 +65,7 @@ class TakePattern:
 			if distance > 0:
 				for i in range(distance):
 					var square:ChessBoard.Square = board.get_square(current_square.coordinates + direction * (i+1))
-					if square == null: # AUDIT Check whether this will make sense with jumping pieces
+					if square == null:
 						break
 					else:
 						var _take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed)
