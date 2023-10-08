@@ -27,6 +27,10 @@ func next_turn():
 	if index >= colors.size():
 		index = 0
 	current_turn = colors[index]
+	for col in board:
+		for square in col.row:
+			if square.piece != null:
+				square.piece.turn_started(self, current_turn) 
 	events.turn_started.emit([current_turn])
 
 func handle_color_loss(color:ChessPiece.PieceColor):

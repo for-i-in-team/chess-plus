@@ -140,7 +140,7 @@ class King:
 				if is_in_check(board, board.get_square(square)):
 					return null
 			var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction), []) # TODO Set up traversed squares
-			return ChessPiece.Move.new(self, current_square, to_square, [incidental])
+			return ChessPiece.Move.new(self, current_square, to_square, [], [incidental])
 		return null
 
 	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square) -> bool:

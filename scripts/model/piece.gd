@@ -15,6 +15,9 @@ class PieceModifier:
 
 	func get_take_for_square(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, _target_square:ChessBoard.Square, existing_take:Take) -> Take:
 		return existing_take
+
+	func turn_started(_piece:ChessPiece, _board: ChessBoard, _turn_color:PieceColor):
+		pass
 	
 
 class Take:
@@ -131,6 +134,10 @@ func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, t
 	for modifier in modifiers:
 		_take = modifier.get_take_for_square(self, _board, current_square, target_square, _take)
 	return _take
+
+func turn_started(board:ChessBoard, turn_color:PieceColor):
+	for modifier in modifiers:
+		modifier.turn_started(self, board, turn_color)
 
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
 	var valid:Array[ChessBoard.Square] = []
