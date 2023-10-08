@@ -2,13 +2,13 @@ class_name ChessPiece
 
 class PieceModifier:
 	func move(_piece:ChessPiece, _board: ChessBoard, _move:Move):
-		return move
+		return _move
 
 	func get_valid_moves(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, moves:Array[Move]) -> Array[Move]:
 		return moves
 
 	func take(_piece:ChessPiece, _board: ChessBoard, _take:Take):
-		return take
+		return _take
 
 	func get_valid_takes(_piece:ChessPiece, _board: ChessBoard, _current_square:ChessBoard.Square, takes:Array[Take]) -> Array[Take]:
 		return takes
