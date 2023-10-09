@@ -25,6 +25,13 @@ class Pattern:
 	func is_blocked(square:ChessBoard.Square):
 		return square == null or (not jumps_pieces and square.piece != null)
 
+	func test_in_direction(board: ChessBoard, start: ChessBoard.Square, direction: Vector2, condition : Callable) -> ChessBoard.Square:
+		## Returns the first square in the given direction that satisfies the condition. Returns null if no such square exists
+		var new_square : ChessBoard.Square = board.get_square(start.coordinates + direction)
+		while new_square != null and !condition.call(new_square):
+			new_square = board.get_square(new_square.coordinates + direction)
+		return new_square
+
 class MovePattern:
 	extends Pattern
 
