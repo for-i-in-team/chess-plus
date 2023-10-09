@@ -169,13 +169,6 @@ func _direction_where(board:ChessBoard, current_square: ChessBoard.Square, direc
 		new_square = board.get_square(new_square.coordinates + direction)
 	return valid
 
-func test_in_direction(board: ChessBoard, start: ChessBoard.Square, direction: Vector2, condition : Callable) -> ChessBoard.Square:
-	## Returns the first square in the given direction that satisfies the condition. Returns null if no such square exists
-	var new_square : ChessBoard.Square = board.get_square(start.coordinates + direction)
-	while new_square != null and !condition.call(new_square):
-		new_square = board.get_square(new_square.coordinates + direction)
-	return new_square
-
 func copy() -> ChessPiece:
 	assert(false, "copy not implemented")
 	return null

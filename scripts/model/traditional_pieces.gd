@@ -46,6 +46,68 @@ class DoubleFirstMove:
 		super.take(piece, board, _take)
 		distance = distance/2
 
+class CastlePattern:
+	extends PieceMovement.MovePattern
+
+	var has_moved:bool = false
+
+	func _init(_directions= PieceMovement.Direction.ALL, _distance=2):
+		super._init(_directions, _distance)
+
+	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):
+		super.move(piece, board, _move)
+		has_moved = true
+
+	func take(piece:ChessPiece, board: ChessBoard, _take:ChessPiece.Take):
+		super.take(piece, board, _take)
+		has_moved = true
+
+	func get_valid_moves(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
+		if has_moved or piece.has_method("is_in_check") and piece.is_in_check(board, current_square):
+			return []
+		var valid_moves : Array[ChessPiece.Move] = []
+		# For each direction
+		for direction in directions:
+			# Get next piece in that direction
+			var next_piece_square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
+
+			# If the piece is further away then the potential move, check if it can castle
+			var end_square_coords = current_square.coordinates + direction * distance
+			if next_piece_square != null and current_square.coordinates.distance_to(end_square_coords) < current_square.coordinates.distance_to(next_piece_square.coordinates) and can_castle(next_piece_square.piece):
+				# If it can, add the move
+				valid_moves.append(get_castle_move(piece, board, current_square, board.get_square(end_square_coords), direction, next_piece_square))
+		return valid_moves
+				
+
+	func can_castle(piece:ChessPiece) -> bool:
+		for mod in piece.modifiers:
+			if mod is CanCastle:
+				return !mod.has_moved
+		return false
+
+	func get_castle_move(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square, to_square:ChessBoard.Square, direction:Vector2, next_piece_square:ChessBoard.Square) -> ChessPiece.Move:
+		var threat_squares : Array[ChessBoard.Square] = []
+		
+		var sq : ChessBoard.Square = board.get_square(current_square.coordinates + direction)
+		while sq != to_square:
+			threat_squares.append(sq)
+			sq = board.get_square(sq.coordinates + direction)
+
+		var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction), [])
+		return ChessPiece.Move.new(piece, current_square, to_square, threat_squares, [incidental])
+	
+class CanCastle:
+	extends ChessPiece.PieceModifier
+
+	var has_moved:bool = false
+
+	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):
+		has_moved = true
+		return await(super.move(piece, board, _move))
+
+	func take(piece:ChessPiece, board: ChessBoard, _take:ChessPiece.Take):
+		has_moved = true
+		return await(super.take(piece, board, _take))
 
 class Pawn:
 	extends ChessPiece
@@ -59,24 +121,12 @@ class Pawn:
 			
 class Rook:
 	extends ChessPiece
-	
-	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("Rook", _color, 5, [PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)])
-
-	func move(board: ChessBoard, _move:ChessPiece.Move):
-		await(super.move(board, _move))
-		has_moved = true
-
-	func take(board:ChessBoard, _take:ChessPiece.Take):
-		await(super.take(board, _take))
-		has_moved = true
+		super._init("Rook", _color, 5, [PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)], [CanCastle.new()])
 
 	func copy() -> ChessPiece:
-		var new_rook : Rook = Rook.new(color)
-		new_rook.has_moved = has_moved
-		return new_rook
+		return Rook.new(color)
 
 class Bishop:
 	extends ChessPiece
@@ -112,39 +162,9 @@ class Queen:
 class King:
 	extends ChessPiece
 
-	var has_moved : bool = false
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)])
-	
-	func move(board: ChessBoard, _move:Move):
-		await(super.move(board, _move))
-		has_moved = true
-
-	func take(board:ChessBoard, _take:ChessPiece.Take):
-		await(super.take(board, _take))
-		has_moved = true
-
-	func get_valid_moves(board: ChessBoard, current_square: ChessBoard.Square) -> Array[ChessPiece.Move]:
-		var valid : Array[ChessPiece.Move] = super.get_valid_moves(board, current_square)
-		if !has_moved:
-			for direction in [Vector2(-1,0), Vector2(1,0)]:
-				var _move : ChessPiece.Move = get_castle_move(board, current_square, direction)
-				if _move != null:
-					valid.append(_move)
-		return valid
-
-	func get_castle_move(board:ChessBoard, current_square:ChessBoard.Square, direction:Vector2):
-		var to_square:ChessBoard.Square = board.get_square(current_square.coordinates + direction * 2)
-		var next_piece_square = test_in_direction(board, current_square, direction, func(square:ChessBoard.Square): return square.piece != null)
-		if next_piece_square != null and next_piece_square.piece is Rook and !next_piece_square.piece.has_moved and next_piece_square.piece.color == color:
-			var threat_squares : Array[Vector2] = [current_square.coordinates,current_square.coordinates + direction, current_square.coordinates, current_square.coordinates + 2*direction]
-			for square in threat_squares:
-				if is_in_check(board, board.get_square(square)):
-					return null
-			var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction), []) # TODO Set up traversed squares
-			return ChessPiece.Move.new(self, current_square, to_square, [], [incidental])
-		return null
+		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1), CastlePattern.new()], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)])
 
 	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square) -> bool:
 		for row in board.board:
@@ -158,7 +178,6 @@ class King:
 	
 	func copy() -> ChessPiece:
 		var new_king : King = King.new(color)
-		new_king.has_moved = has_moved
 		return new_king
 
 
