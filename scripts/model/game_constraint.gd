@@ -24,7 +24,7 @@ class FriendlyFireConstraint:
 
 	func validate_take(_board:ChessBoard, _take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
 		if _take.to_square.piece == null:
-			return true
+			return true # AUDIT Should we filter out friendly en-passant here? Or maybe elsewhere
 		return _take.from_square.piece.color != _take.to_square.piece.color
 
 class NoCheckConstraint:
@@ -47,3 +47,20 @@ class NoCheckConstraint:
 						return false
 		return true
 
+class NoTraversingCheckConstraint:
+	extends GameConstraint
+
+	func _init():
+		super._init("No Traversing Check","Prevents a piece from moving through a square that would put itself in check",false)
+
+	func validate_move(_board:ChessBoard, _move:ChessPiece.Move, _next_state:ChessBoard) -> bool:
+		if _move.piece.has_method("is_in_check"):
+			# Create a copy of the board without the piece on it, to ensure it doesn't block any potential checks
+			var new_board = _board.copy()
+			new_board.get_square(_move.from_square.coordinates).piece = null
+			for square in _move.traversed_squares:
+				new_board.get_square(square.coordinates).piece = _move.piece
+				if _move.piece.is_in_check(new_board, new_board.get_square(square.coordinates)):
+					return false
+				new_board.get_square(square.coordinates).piece = null
+		return true
