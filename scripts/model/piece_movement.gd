@@ -45,7 +45,7 @@ class MovePattern:
 					if is_blocked(square):
 						break
 					elif len(piece.get_take_for_square(board, current_square, square, traversed).targets) == 0:
-						moves.append(ChessPiece.Move.new(piece, current_square, square, traversed))
+						moves.append(ChessPiece.Move.new(piece, current_square, square, traversed.duplicate()))
 					traversed.append(square)
 			else:
 				var next_square = board.get_square(current_square.coordinates + direction)
@@ -53,7 +53,7 @@ class MovePattern:
 					if is_blocked(next_square):
 						break
 					elif len(piece.get_take_for_square(board, current_square, next_square, traversed).targets) == 0:
-						moves.append(ChessPiece.Move.new(piece, current_square, next_square, traversed))
+						moves.append(ChessPiece.Move.new(piece, current_square, next_square, traversed.duplicate()))
 					traversed.append(next_square)
 					next_square = board.get_square(next_square.coordinates + direction)
 
@@ -75,7 +75,7 @@ class TakePattern:
 					if square == null:
 						break
 					else:
-						var _take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed)
+						var _take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed.duplicate())
 						if len(_take.targets)>0:
 							takes.append(_take)
 							if is_blocked(square):
@@ -84,7 +84,7 @@ class TakePattern:
 			else:
 				var next_square = board.get_square(current_square.coordinates + direction)
 				while next_square != null:
-					var _take:ChessPiece.Take =piece.get_take_for_square(board, current_square, next_square, traversed)
+					var _take:ChessPiece.Take =piece.get_take_for_square(board, current_square, next_square, traversed.duplicate())
 					traversed.append(next_square)
 					if len(_take.targets)>0:
 						takes.append(_take)
