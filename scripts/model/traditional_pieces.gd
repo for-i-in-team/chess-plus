@@ -72,16 +72,20 @@ class CastlePattern:
 
 			# If the piece is further away then the potential move, check if it can castle
 			var end_square_coords = current_square.coordinates + direction * distance
-			if next_piece_square != null and current_square.coordinates.distance_to(end_square_coords) < current_square.coordinates.distance_to(next_piece_square.coordinates) and can_castle(next_piece_square.piece):
+			if next_piece_square != null and next_piece_square.piece.color == piece.color and current_square.coordinates.distance_to(end_square_coords) < current_square.coordinates.distance_to(next_piece_square.coordinates) and can_castle(board, next_piece_square, board.get_square(end_square_coords - direction)):
 				# If it can, add the move
 				valid_moves.append(get_castle_move(piece, board, current_square, board.get_square(end_square_coords), direction, next_piece_square))
 		return valid_moves
 				
 
-	func can_castle(piece:ChessPiece) -> bool:
-		var mod = piece.get_modifier(CanCastle)
-		if mod != null:
-			return !mod.has_moved
+	func can_castle(board, square:ChessBoard.Square, end_square:ChessBoard.Square) -> bool:
+		var mod = square.piece.get_modifier(CanCastle)
+		if mod != null and !mod.has_moved:
+			var moves : Array[ChessPiece.Move] = square.piece.get_valid_moves(board, square)
+			for _move in moves:
+				if _move.to_square == end_square:
+					return true
+
 		return false
 
 	func get_castle_move(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square, to_square:ChessBoard.Square, direction:Vector2, next_piece_square:ChessBoard.Square) -> ChessPiece.Move:
