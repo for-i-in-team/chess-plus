@@ -26,13 +26,13 @@ class EndOnCheckmate:
 			for square in row.row:
 				if square.piece != null && square.piece.color == color:
 					no_pieces = false 
-					if square.piece.has_method("is_in_check"):
+					if square.piece.get_modifier(TraditionalPieces.Checkable) != null:
 						checkable_pieces.append(square)
 		if no_pieces:
 			return true
 		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
 			for square in checkable_pieces:
-				if square.piece.is_in_check(board, square):
+				if square.piece.get_modifier(TraditionalPieces.Checkable).is_in_check(square.piece,board, square):
 					return true
 		
 		return false

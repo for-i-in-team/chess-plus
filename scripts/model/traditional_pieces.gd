@@ -9,12 +9,10 @@ class CanEnPassant:
 		for row in board.board:
 			for square in row.row:
 				if square.piece != null and square.piece.color != piece.color:
-					var ep_piece : ChessPiece = square.piece
-					for modifier in ep_piece.modifiers:
-						if modifier is IsEnPassantable:
-							if target_square in modifier.en_passantable_coords:
-								_take.targets.append(square)
-								break
+					var modifier = square.piece.get_modifier(IsEnPassantable)
+					if modifier != null and target_square in modifier.en_passantable_coords:
+							_take.targets.append(square)
+							break
 
 		return _take
 
@@ -63,7 +61,8 @@ class CastlePattern:
 		has_moved = true
 
 	func get_valid_moves(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
-		if has_moved or piece.has_method("is_in_check") and piece.is_in_check(board, current_square):
+		var check_mod = piece.get_modifier(Checkable)
+		if has_moved or check_mod != null and check_mod.is_in_check(piece, board, current_square):
 			return []
 		var valid_moves : Array[ChessPiece.Move] = []
 		# For each direction
@@ -80,9 +79,9 @@ class CastlePattern:
 				
 
 	func can_castle(piece:ChessPiece) -> bool:
-		for mod in piece.modifiers:
-			if mod is CanCastle:
-				return !mod.has_moved
+		var mod = piece.get_modifier(CanCastle)
+		if mod != null:
+			return !mod.has_moved
 		return false
 
 	func get_castle_move(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square, to_square:ChessBoard.Square, direction:Vector2, next_piece_square:ChessBoard.Square) -> ChessPiece.Move:

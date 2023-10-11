@@ -147,6 +147,12 @@ func turn_started(board:ChessBoard, turn_color:PieceColor):
 	for modifier in modifiers:
 		modifier.turn_started(self, board, turn_color)
 
+func get_modifier(mod_type:GDScript):
+	for modifier in modifiers:
+		if is_instance_of(modifier, mod_type):
+			return modifier
+	return null
+
 func _orthogonal_where(board: ChessBoard, current_square: ChessBoard.Square, condition : Callable) -> Array[ChessBoard.Square]:
 	var valid:Array[ChessBoard.Square] = []
 	var directions:Array[Vector2] = [Vector2(1,0), Vector2(-1,0), Vector2(0,1), Vector2(0,-1)]

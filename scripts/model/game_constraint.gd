@@ -42,8 +42,9 @@ class NoCheckConstraint:
 	func no_checks(board:ChessBoard, color:ChessPiece.PieceColor) -> bool:
 		for row in board.board:
 			for square in row.row:
-				if square.piece != null and square.piece.color == color and square.piece.has_method("is_in_check"):
-					if square.piece.is_in_check(board, square):
+				if square.piece != null and square.piece.color == color:
+					var check_mod = square.piece.get_modifier(TraditionalPieces.Checkable)
+					if check_mod != null and check_mod.is_in_check(square.piece, board, square):
 						return false
 		return true
 
@@ -54,13 +55,14 @@ class NoTraversingCheckConstraint:
 		super._init("No Traversing Check","Prevents a piece from moving through a square that would put itself in check",false)
 
 	func validate_move(_board:ChessBoard, _move:ChessPiece.Move, _next_state:ChessBoard) -> bool:
-		if _move.piece.has_method("is_in_check"):
+		var check_mod = _move.piece.get_modifier(TraditionalPieces.Checkable)
+		if check_mod != null:
 			# Create a copy of the board without the piece on it, to ensure it doesn't block any potential checks
 			var new_board = _board.copy()
 			new_board.get_square(_move.from_square.coordinates).piece = null
 			for square in _move.traversed_squares:
 				new_board.get_square(square.coordinates).piece = _move.piece
-				if _move.piece.is_in_check(new_board, new_board.get_square(square.coordinates)):
+				if check_mod.is_in_check(_move.piece, new_board, new_board.get_square(square.coordinates)):
 					return false
 				new_board.get_square(square.coordinates).piece = null
 		return true
