@@ -79,7 +79,7 @@ var move_patterns:Array[PieceMovement.MovePattern]
 var take_patterns:Array[PieceMovement.TakePattern]
 var modifiers:Array[PieceModifier]
 
-func _init(_name, _color:PieceColor, _point_value:int, _move_patterns:Array[PieceMovement.MovePattern], _take_patterns:Array[PieceMovement.TakePattern], _modifiers:Array[PieceModifier] = []):
+func _init(_name, _color:PieceColor, _point_value:float, _move_patterns:Array[PieceMovement.MovePattern], _take_patterns:Array[PieceMovement.TakePattern], _modifiers:Array[PieceModifier] = []):
 	name = _name
 	color = _color
 	point_value = _point_value
