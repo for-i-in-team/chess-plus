@@ -29,6 +29,7 @@ class Take:
 	var to_square : ChessBoard.Square
 	var targets : Array[ChessBoard.Square]
 	var traversed_squares : Array[ChessBoard.Square]
+	var taken_pieces : Array[ChessPiece]
 
 	func _init(_piece:ChessPiece,_from_square: ChessBoard.Square, _to_square: ChessBoard.Square, _traversed_squares:Array[ChessBoard.Square], _targets : Array[ChessBoard.Square]):
 		self.piece = _piece
@@ -36,6 +37,8 @@ class Take:
 		self.to_square = _to_square
 		self.targets = _targets
 		self.traversed_squares = _traversed_squares
+		for sq in self.targets:
+			self.taken_pieces.append(sq.piece)
 
 	func get_value():
 		var value = 0
@@ -139,9 +142,11 @@ func get_valid_takes(board: ChessBoard, current_square:ChessBoard.Square) -> Arr
 	return takes
 
 func get_take_for_square(_board: ChessBoard, current_square:ChessBoard.Square, target_square:ChessBoard.Square, traversed: Array[ChessBoard.Square]) -> Take:
-	var _take : Take = Take.new(self, current_square, target_square, traversed, [])
+	var targets:Array[ChessBoard.Square] = []
 	if target_square.piece != null:
-		_take.targets.append(target_square)
+		targets.append(target_square)
+	var _take : Take = Take.new(self, current_square, target_square, traversed, targets)
+	
 	for modifier in modifiers:
 		_take = modifier.get_take_for_square(self, _board, current_square, target_square, _take)
 	return _take

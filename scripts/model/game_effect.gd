@@ -82,3 +82,14 @@ class PiecesPromoteToQueens:
 					await(board.events.piece_change.emit([old_piece, move.to_square.piece]))
 
 			
+class LoseOnCheckableTaken:
+	extends GameEffect
+
+	func set_board(_board:ChessBoard):
+		super.set_board(_board)
+		_board.events.piece_taken.connect_sig(func(take): handle_piece_taken(take))
+
+	func handle_piece_taken(take:ChessPiece.Take):
+		for target in take.taken_pieces:
+			if target.get_modifier(TraditionalPieces.Checkable) != null:
+				board.events.color_lost.emit([target.color])
