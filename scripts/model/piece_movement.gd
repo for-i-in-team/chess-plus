@@ -32,6 +32,9 @@ class Pattern:
 			new_square = board.get_square(new_square.coordinates + direction)
 		return new_square
 
+	func copy():
+		return self
+
 class MovePattern:
 	extends Pattern
 

@@ -10,7 +10,7 @@ class CanEnPassant:
 			for square in row.row:
 				if square.piece != null and square.piece.color != piece.color:
 					var modifier = square.piece.get_modifier(IsEnPassantable)
-					if modifier != null and target_square in modifier.en_passantable_coords:
+					if modifier != null and target_square.coordinates in modifier.en_passantable_coords:
 							_take.targets.append(square)
 							break
 
@@ -19,7 +19,7 @@ class CanEnPassant:
 class IsEnPassantable:
 	extends ChessPiece.PieceModifier
 
-	var en_passantable_coords : Array[ChessBoard.Square] = []
+	var en_passantable_coords : Array[Vector2] = []
 
 	func turn_started(piece:ChessPiece, _board:ChessBoard, turn_color: ChessPiece.PieceColor):
 		if turn_color == piece.color:
@@ -27,22 +27,40 @@ class IsEnPassantable:
 	
 	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):
 		_move = super.move(piece, board, _move)
-		en_passantable_coords = _move.traversed_squares
+		en_passantable_coords = []
+		for sq in _move.traversed_squares:
+			en_passantable_coords.append(sq.coordinates)
 		return _move
+
+	func copy():
+		var _copy = IsEnPassantable.new()
+		_copy.en_passantable_coords = en_passantable_coords.duplicate()
+		return _copy
 
 class DoubleFirstMove:
 	extends PieceMovement.MovePattern
+
+	var has_moved:bool = false
 
 	func _init(_directions:Array[Vector2], _distance:int, _jumps_pieces:bool = false):
 		super._init(_directions, _distance*2, _jumps_pieces)
 
 	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):
 		super.move(piece, board, _move)
-		distance = distance/2
+		if !has_moved:
+			has_moved = true
+			distance = distance/2
 
 	func take(piece:ChessPiece, board: ChessBoard, _take:ChessPiece.Take):
 		super.take(piece, board, _take)
-		distance = distance/2
+		if !has_moved:
+			has_moved = true
+			distance = distance/2
+
+	func copy():
+		var _copy = DoubleFirstMove.new(directions, distance, jumps_pieces)
+		_copy.has_moved = has_moved
+		return _copy
 
 class CastlePattern:
 	extends PieceMovement.MovePattern
@@ -62,7 +80,7 @@ class CastlePattern:
 
 	func get_valid_moves(piece:ChessPiece, board:ChessBoard, current_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
 		var check_mod = piece.get_modifier(Checkable)
-		if has_moved or check_mod != null and check_mod.is_in_check(piece, board, current_square):
+		if has_moved or (check_mod != null and check_mod.is_in_check(piece, board, current_square)):
 			return []
 		var valid_moves : Array[ChessPiece.Move] = []
 		# For each direction
@@ -98,6 +116,11 @@ class CastlePattern:
 
 		var incidental = ChessPiece.Move.new(next_piece_square.piece, next_piece_square, board.get_square(to_square.coordinates - direction), [])
 		return ChessPiece.Move.new(piece, current_square, to_square, threat_squares, [incidental])
+
+	func copy():
+		var _copy = CastlePattern.new()
+		_copy.has_moved = has_moved
+		return _copy
 	
 class CanCastle:
 	extends ChessPiece.PieceModifier
@@ -111,6 +134,11 @@ class CanCastle:
 	func take(piece:ChessPiece, board: ChessBoard, _take:ChessPiece.Take):
 		has_moved = true
 		return await(super.take(piece, board, _take))
+
+	func copy():
+		var _copy = CanCastle.new()
+		_copy.has_moved = has_moved
+		return _copy
 
 class Checkable:
 	extends ChessPiece.PieceModifier
@@ -132,10 +160,6 @@ class Pawn:
 
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Pawn", _color, 1, [DoubleFirstMove.new([_color.move_direction],1)], [PieceMovement.TakePattern.new([_color.move_direction + _color.get_perpendicular_direction(), _color.move_direction - _color.get_perpendicular_direction()],1)], [CanEnPassant.new(), IsEnPassantable.new()])
-
-	func copy() -> ChessPiece:
-		var new_pawn : Pawn = Pawn.new(color)
-		return new_pawn
 			
 class Rook:
 	extends ChessPiece
@@ -143,18 +167,11 @@ class Rook:
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Rook", _color, 5, [PieceMovement.MovePattern.new(PieceMovement.Direction.ORTHOGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ORTHOGONAL)], [CanCastle.new()])
 
-	func copy() -> ChessPiece:
-		return Rook.new(color)
-
 class Bishop:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Bishop", _color, 3, [PieceMovement.MovePattern.new(PieceMovement.Direction.DIAGONAL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.DIAGONAL)])
-
-	func copy() -> ChessPiece:
-		return Bishop.new(color)
-
 
 class Knight:
 	extends ChessPiece
@@ -164,18 +181,12 @@ class Knight:
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Knight", _color, 3, [PieceMovement.MovePattern.new(KNIGHT_DIRECTIONS, 1)], [PieceMovement.TakePattern.new(KNIGHT_DIRECTIONS, 1)])
 
-	func copy() -> ChessPiece:
-		return Knight.new(color)
-
 
 class Queen:
 	extends ChessPiece
 
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("Queen", _color, 8, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL)], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL)])
-		
-	func copy() -> ChessPiece:
-		return Queen.new(color)
 
 class King:
 	extends ChessPiece
@@ -183,10 +194,6 @@ class King:
 
 	func _init(_color:ChessPiece.PieceColor):
 		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1), CastlePattern.new()], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)], [Checkable.new()])
-	
-	func copy() -> ChessPiece:
-		var new_king : King = King.new(color)
-		return new_king
 
 
 static func lay_out_traditional_board(board:ChessBoard):

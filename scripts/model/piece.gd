@@ -18,6 +18,9 @@ class PieceModifier:
 
 	func turn_started(_piece:ChessPiece, _board: ChessBoard, _turn_color:PieceColor):
 		pass
+
+	func copy():
+		return self
 	
 
 class Take:
@@ -175,9 +178,23 @@ func _direction_where(board:ChessBoard, current_square: ChessBoard.Square, direc
 		new_square = board.get_square(new_square.coordinates + direction)
 	return valid
 
+func instantiate(_name,_color,_point_value):
+	return ChessPiece.new(_name, _color, _point_value, [], [])
+
 func copy() -> ChessPiece:
-	assert(false, "copy not implemented")
-	return null
+	var piece = instantiate(name, color, point_value)
+
+	for pattern in move_patterns:
+		piece.move_patterns.append(pattern.copy())
+
+	for pattern in take_patterns:
+		piece.take_patterns.append(pattern.copy())
+
+	for modifier in modifiers:
+		piece.modifiers.append(modifier.copy())
+
+	return piece
+	
 
 func _to_string():
 	return color.name + " " + name
