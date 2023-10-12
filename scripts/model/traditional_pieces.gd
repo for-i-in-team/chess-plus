@@ -112,6 +112,21 @@ class CanCastle:
 		has_moved = true
 		return await(super.take(piece, board, _take))
 
+class Checkable:
+	extends ChessPiece.PieceModifier
+
+	func is_in_check(piece: ChessPiece, board:ChessBoard, current_square:ChessBoard.Square) -> bool:
+		for row in board.board:
+			for square in row.row:
+				if square.piece != null and square.piece.color != piece.color:
+					var valid_takes = square.piece.get_valid_takes(board, square)
+					for _take in valid_takes:
+						if _take.targets.find(current_square) != -1:
+							return true
+		return false
+
+
+
 class Pawn:
 	extends ChessPiece
 
@@ -167,17 +182,7 @@ class King:
 
 
 	func _init(_color:ChessPiece.PieceColor):
-		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1), CastlePattern.new()], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)])
-
-	func is_in_check(board:ChessBoard, current_square:ChessBoard.Square) -> bool:
-		for row in board.board:
-			for square in row.row:
-				if square.piece != null and square.piece.color != color:
-					var valid_takes = square.piece.get_valid_takes(board, square)
-					for _take in valid_takes:
-						if _take.targets.find(current_square) != -1:
-							return true
-		return false
+		super._init("King", _color, 0, [PieceMovement.MovePattern.new(PieceMovement.Direction.ALL, 1), CastlePattern.new()], [PieceMovement.TakePattern.new(PieceMovement.Direction.ALL, 1)], [Checkable.new()])
 	
 	func copy() -> ChessPiece:
 		var new_king : King = King.new(color)
