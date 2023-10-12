@@ -235,6 +235,7 @@ static func get_traditional_board_setup():
 	board.add_effect(GameEffect.EndOnCheckmate.new())
 	board.add_effect(GameEffect.EndOnStalemate.new())
 	board.add_effect(GameEffect.PiecesPromoteToQueens.new())
+	board.add_effect(GameEffect.LoseOnCheckableTaken.new())
 
 	TraditionalPieces.lay_out_traditional_board(board)
 

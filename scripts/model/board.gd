@@ -147,7 +147,7 @@ func validate_takes(takes:Array[ChessPiece.Take])-> Array[ChessPiece.Take]:
 func get_new_board_state_take(_take:ChessPiece.Take):
 	var new_board = copy()
 	var from_square : Square = new_board.get_square(_take.from_square.coordinates)
-	var new_targets = []
+	var new_targets:Array[ChessBoard.Square] = []
 	for sq in _take.targets:
 		new_targets.append(new_board.get_square(sq.coordinates))
 	var new_take = ChessPiece.Take.new(from_square.piece, from_square, new_board.get_square(_take.to_square.coordinates), [], new_targets)

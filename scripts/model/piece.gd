@@ -38,7 +38,8 @@ class Take:
 		self.targets = _targets
 		self.traversed_squares = _traversed_squares
 		for sq in self.targets:
-			self.taken_pieces.append(sq.piece)
+			if sq.piece != null:
+				self.taken_pieces.append(sq.piece)
 
 	func get_value():
 		var value = 0
