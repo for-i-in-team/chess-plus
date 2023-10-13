@@ -84,7 +84,8 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	piece.move(self, _move)
 	
 	await(events.piece_moved.emit([_move]))
-	next_turn()
+	if !is_game_ended():
+		next_turn()
 
 func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
 	var takes :Array[ChessPiece.Take] = get_valid_takes(origin_square)
@@ -96,7 +97,11 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
 	origin_square.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
-	next_turn()
+	if !is_game_ended():
+		next_turn()
+
+func is_game_ended() -> bool:
+	return len(colors) <= 1
 
 func get_valid_moves(origin_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
 	return validate_moves(origin_square.piece.get_valid_moves(self, origin_square))
