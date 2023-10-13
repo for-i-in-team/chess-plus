@@ -27,6 +27,10 @@ func next_turn():
 	if index >= colors.size():
 		index = 0
 	current_turn = colors[index]
+	for col in board:
+		for square in col.row:
+			if square.piece != null:
+				square.piece.turn_started(self, current_turn) 
 	events.turn_started.emit([current_turn])
 
 func handle_color_loss(color:ChessPiece.PieceColor):
@@ -80,7 +84,8 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	piece.move(self, _move)
 	
 	await(events.piece_moved.emit([_move]))
-	next_turn()
+	if !is_game_ended():
+		next_turn()
 
 func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
 	var takes :Array[ChessPiece.Take] = get_valid_takes(origin_square)
@@ -92,7 +97,11 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
 	origin_square.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
-	next_turn()
+	if !is_game_ended():
+		next_turn()
+
+func is_game_ended() -> bool:
+	return len(colors) <= 1
 
 func get_valid_moves(origin_square:ChessBoard.Square) -> Array[ChessPiece.Move]:
 	return validate_moves(origin_square.piece.get_valid_moves(self, origin_square))
@@ -143,17 +152,23 @@ func validate_takes(takes:Array[ChessPiece.Take])-> Array[ChessPiece.Take]:
 func get_new_board_state_take(_take:ChessPiece.Take):
 	var new_board = copy()
 	var from_square : Square = new_board.get_square(_take.from_square.coordinates)
-	var new_take = ChessPiece.Take.new(from_square.piece, from_square, new_board.get_square(_take.to_square.coordinates), [])
+	var new_targets:Array[ChessBoard.Square] = []
 	for sq in _take.targets:
-		new_take.targets.append(new_board.get_square(sq.coordinates))
+		new_targets.append(new_board.get_square(sq.coordinates))
+	var new_take = ChessPiece.Take.new(from_square.piece, from_square, new_board.get_square(_take.to_square.coordinates), [], new_targets)
+	
+	for sq in _take.traversed_squares:
+		new_take.traversed_squares.append(new_board.get_square(sq.coordinates))
 	new_take.from_square.piece.take(new_board, new_take)
 	return new_board
 
 func get_new_board_state_move(_move: ChessPiece.Move) -> ChessBoard:
 	var new_board = copy()
-	var new_move : ChessPiece.Move = ChessPiece.Move.new(_move.piece.copy(), new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates))
+	var new_move : ChessPiece.Move = ChessPiece.Move.new(_move.piece.copy(), new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates), [])
 	for mv in _move.incidental:
-		new_move.incidental.append(ChessPiece.Move.new(mv.piece, new_board.get_square(mv.from_square.coordinates), new_board.get_square(mv.to_square.coordinates)))
+		new_move.incidental.append(ChessPiece.Move.new(mv.piece, new_board.get_square(mv.from_square.coordinates), new_board.get_square(mv.to_square.coordinates), []))
+	for sq in _move.traversed_squares:
+		new_move.traversed_squares.append(new_board.get_square(sq.coordinates))
 	new_move.from_square.piece.move(new_board, new_move)
 	return new_board
 

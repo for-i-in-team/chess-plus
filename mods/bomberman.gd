@@ -16,11 +16,12 @@ func explode(take:ChessPiece.Take):
 		while square != null:
 			if square.piece != null:
 				targets.append(square)
-				square.piece = null
 			square = board.get_square(square.coordinates + direction)
 
 
-	var new_take:BombTake = BombTake.new(take.piece, take.to_square, take.to_square, targets)
+	var new_take:BombTake = BombTake.new(take.piece, take.to_square, take.to_square, [], targets)
+	for target in targets:
+		target.piece = null
 	await(board.events.piece_taken.emit([new_take]))
 
 
@@ -39,5 +40,6 @@ static func get_bomberman_board():
 	_board.add_effect(GameEffect.EndOnCheckmate.new())
 	_board.add_effect(GameEffect.EndOnStalemate.new())
 	_board.add_effect(GameEffect.PiecesPromoteToQueens.new())
+	_board.add_effect(GameEffect.LoseOnCheckableTaken.new())
 
 	return _board
