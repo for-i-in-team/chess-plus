@@ -1,4 +1,4 @@
-class_name ChessPiece	
+class_name ChessPiece
 
 class PieceModifier:
 	func move(_piece:ChessPiece, _board: ChessBoard, _move:Move):
@@ -22,8 +22,18 @@ class PieceModifier:
 	func copy():
 		return self
 	
+class TurnOption:
+
+	func apply_to_board(_board:ChessBoard):
+		assert(false, "TurnOption.apply_to_board not implemented")
+
+	func copy_on_board(_board:ChessBoard) -> ChessBoard:
+		assert(false, "TurnOption.copy_on_board not implemented")
+		return null
 
 class Take:
+	extends TurnOption
+
 	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
@@ -48,7 +58,15 @@ class Take:
 				value += target.piece.point_value
 		return value
 
+	func apply_to_board(board:ChessBoard):
+		await(board.take(from_square, to_square))
+
+	func copy_on_board(board:ChessBoard):
+		return await(board.get_new_board_state_take(self))
+
 class Move:
+	extends TurnOption
+
 	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
@@ -61,6 +79,12 @@ class Move:
 		to_square = _to_square
 		incidental = _incidental
 		self.traversed_squares = _traversed_squares
+
+	func apply_to_board(board:ChessBoard):
+		await(board.move(from_square, to_square))
+
+	func copy_on_board(board:ChessBoard):
+		return await(board.get_new_board_state_move(self))
 
 class PieceColor:
 	var name : String
