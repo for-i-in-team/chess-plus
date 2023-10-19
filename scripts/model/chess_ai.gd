@@ -3,7 +3,6 @@ class_name ChessAI
 var color : ChessPiece.PieceColor
 var board : ChessBoard
 var search_depth:int = 0
-var cache : Array[BoardValueCacheEntry] = []
 
 func _init(_color : ChessPiece.PieceColor, _board : ChessBoard):
 	color = _color
@@ -15,10 +14,7 @@ func _init(_color : ChessPiece.PieceColor, _board : ChessBoard):
 	)
 
 func play_turn():
-	
-	var start_time = Time.get_ticks_usec()
 	var option = await(get_best_option(board, color, 0))
-	print("Time taken: %s" % [Time.get_ticks_usec() - start_time])
 	option.option.apply_to_board(board)
 
 func get_best_option(_board:ChessBoard, _color:ChessPiece.PieceColor, depth:int):
@@ -30,10 +26,10 @@ func get_best_option(_board:ChessBoard, _color:ChessPiece.PieceColor, depth:int)
 	var best_option : ChessPiece.TurnOption = null
 	var best_value : int = -99999
 	for option in options:
-		print("%sTrying move %s from %s to %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), _color.name])
+		#print("%sTrying move %s from %s to %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), _color.name])
 		var new_board = await(option.copy_on_board(_board))
 		var value = await(get_board_value_recursive(new_board, _color, depth))
-		print("%sValue of move %s from %s to %s is %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), str(value), _color.name])
+		#print("%sValue of move %s from %s to %s is %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), str(value), _color.name])
 		if value >= best_value:
 			best_option = option
 			best_value = value
@@ -41,9 +37,6 @@ func get_best_option(_board:ChessBoard, _color:ChessPiece.PieceColor, depth:int)
 	return OptionValue.new(best_option, best_value)
 
 func get_board_value_recursive(_board : ChessBoard, _color : ChessPiece.PieceColor, depth:int) -> int:
-	#var cache_value = get_val_from_cache(_board, _color, depth)
-	#if cache_value != null:
-	#	return cache_value
 	if depth >= search_depth:
 		return get_board_value(_board, _color)
 	var indent : String = ""
@@ -79,18 +72,6 @@ func get_board_value(_board : ChessBoard, _color : ChessPiece.PieceColor):
 					value -= square.piece.point_value
 	print("Time taken: %s" % [Time.get_ticks_usec() - start_time])
 	return value
-
-func get_val_from_cache(_board, _color, depth):
-	for entry in cache:
-		if entry.board.equals(_board) and entry.color == _color and entry.depth == depth:
-			return entry.value
-	return null
-
-class BoardValueCacheEntry:
-	var board : ChessBoard
-	var value : int
-	var color : ChessPiece.PieceColor
-	var depth : int
 
 class OptionValue:
 	var option : ChessPiece.TurnOption
