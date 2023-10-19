@@ -21,6 +21,9 @@ class PieceModifier:
 
 	func copy():
 		return self
+
+	func equals(other:PieceModifier):
+		return other.get_script() == get_script()
 	
 class TurnOption:
 
@@ -228,3 +231,35 @@ func copy() -> ChessPiece:
 
 func _to_string():
 	return color.name + " " + name
+
+func equals(other:ChessPiece):
+	if other.get_script() == get_script() and name == other.name and color == other.color and point_value == other.point_value:
+		for modifier in modifiers:
+			var found = false
+			for other_modifier in other.modifiers:
+				if modifier.equals(other_modifier):
+					found = true
+					break
+			if not found:
+				return false
+		
+		for take_pattern in take_patterns:
+			var found = false
+			for other_take_pattern in other.take_patterns:
+				if take_pattern.equals(other_take_pattern):
+					found = true
+					break
+			if not found:
+				return false
+		
+		for move_pattern in move_patterns:
+			var found = false
+			for other_move_pattern in other.move_patterns:
+				if move_pattern.equals(other_move_pattern):
+					found = true
+					break
+			if not found:
+				return false
+		return true
+		
+	return false

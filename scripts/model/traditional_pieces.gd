@@ -37,6 +37,14 @@ class IsEnPassantable:
 		_copy.en_passantable_coords = en_passantable_coords.duplicate()
 		return _copy
 
+	func equals(other:PieceModifier):
+		if other is IsEnPassantable:
+			for coord in en_passantable_coords:
+				if not coord in other.en_passantable_coords:
+					return false
+			return true
+		return false
+
 class DoubleFirstMove:
 	extends PieceMovement.MovePattern
 
@@ -61,6 +69,9 @@ class DoubleFirstMove:
 		var _copy = DoubleFirstMove.new(directions, distance, jumps_pieces)
 		_copy.has_moved = has_moved
 		return _copy
+
+	func equals(other:PieceMovement.Pattern):
+		return super.equals(other) and has_moved == other.has_moved
 
 class CastlePattern:
 	extends PieceMovement.MovePattern
@@ -121,6 +132,9 @@ class CastlePattern:
 		var _copy = CastlePattern.new()
 		_copy.has_moved = has_moved
 		return _copy
+
+	func equals(other:PieceMovement.Pattern):
+		return super.equals(other) and has_moved == other.has_moved
 	
 class CanCastle:
 	extends ChessPiece.PieceModifier
@@ -139,6 +153,9 @@ class CanCastle:
 		var _copy = CanCastle.new()
 		_copy.has_moved = has_moved
 		return _copy
+
+	func equals(other:PieceModifier):
+		return super.equals(other) and has_moved == other.has_moved
 
 class Checkable:
 	extends ChessPiece.PieceModifier

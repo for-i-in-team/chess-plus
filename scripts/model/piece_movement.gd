@@ -35,6 +35,14 @@ class Pattern:
 	func copy():
 		return self
 
+	func equals(other: Pattern):
+		if other.get_script() == get_script() and distance == other.distance and jumps_pieces == other.jumps_pieces:
+			for direction in directions:
+				if not direction in other.directions:
+					return false
+			return true
+		return false
+
 class MovePattern:
 	extends Pattern
 

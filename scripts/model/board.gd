@@ -224,12 +224,24 @@ func copy() -> ChessBoard:
 		new_board.board[row.row[0].coordinates.y as int] = new_row
 	return new_board
 
+func equals(other:ChessBoard):
+	for i in range(board.size()):
+		if not board[i].equals(other.board[i]):
+			return false
+	return true
+
 class BoardRow:
 	var row:Array[Square]
 	func _init(row_num:int, row_length:int, ):
 		for i in range(row_length):
 			var color : ChessBoard.SquareColor = (ChessBoard.Black.new() as ChessBoard.SquareColor) if (i+row_num)%2 == 0 else ChessBoard.White.new()
 			row.append(Square.new(color, Vector2(i,row_num)))
+
+	func equals(other:BoardRow):
+		for i in range(row.size()):
+			if not row[i].equals(other.row[i]):
+				return false
+		return true
 
 class Square:
 	var color:ChessBoard.SquareColor
@@ -242,6 +254,14 @@ class Square:
 
 	func _to_string():
 		return "Square: (%f,%f) %s"%[coordinates.x, coordinates.y, piece]
+
+	func equals(other:Square):
+		var piece_identical:bool = false
+		if piece == null:
+			piece_identical = other.piece == null
+		else:
+			piece_identical = piece.equals(other.piece)
+		return get_script() == other.get_script() and coordinates == other.coordinates and piece_identical
 
 
 class SquareColor:
