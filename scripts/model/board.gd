@@ -7,6 +7,13 @@ var constraints:Array[GameConstraint] = []
 var effects:Array[GameEffect] = []
 var colors:Array[ChessPiece.PieceColor]
 var current_turn : ChessPiece.PieceColor = ChessPiece.PieceColor.white
+var full_move_state_cache : Dictionary = {}
+var full_take_state_cache : Dictionary = {}
+var move_state_cache : Dictionary = {}
+var take_state_cache : Dictionary = {}
+var move_cache : Dictionary = {}
+var take_cache : Dictionary = {}
+
 
 func _init(board_size:Vector2, _constraints:Array[GameConstraint] = [], _colors:Array[ChessPiece.PieceColor] = []):
 	if len(_constraints) > 0:
@@ -58,19 +65,25 @@ func get_square(coordinates:Vector2):
 		return board[coordinates.y as int].row[coordinates.x as int]
 
 func get_all_moves(color:ChessPiece.PieceColor) -> Array[ChessPiece.Move]:
+	if color in move_cache:
+		return move_cache[color]
 	var moves:Array[ChessPiece.Move] = []
 	for row in board:
 		for square in row.row:
 			if square.piece != null and square.piece.color == color:
 				moves += await(get_valid_moves(square))
+	move_cache[color] = moves
 	return moves
 
 func get_all_takes(color:ChessPiece.PieceColor) -> Array[ChessPiece.Take]:
+	if color in take_cache:
+		return take_cache[color]
 	var takes:Array[ChessPiece.Take] = []
 	for row in board:
 		for square in row.row:
 			if square.piece != null and square.piece.color == color:
 				takes += await(get_valid_takes(square))
+	take_cache[color] = takes
 	return takes
 
 func get_all_options(color:ChessPiece.PieceColor) -> Array[ChessPiece.TurnOption]:
@@ -90,6 +103,8 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	piece.move(self, _move)
 	
 	await(events.piece_moved.emit([_move]))
+	move_cache = {}
+	take_cache = {}
 	check_eliminations()
 	if !is_game_ended():
 		next_turn()
@@ -122,6 +137,8 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
 	origin_square.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
+	move_cache = {}
+	take_cache = {}
 	check_eliminations()
 	if !is_game_ended():
 		next_turn()
@@ -176,6 +193,13 @@ func validate_takes(takes:Array[ChessPiece.Take])-> Array[ChessPiece.Take]:
 	return valid
 
 func get_new_board_state_take(_take:ChessPiece.Take, full = true):
+	if full:
+		if _take in full_take_state_cache:
+			return full_take_state_cache[_take] 
+	elif _take in take_state_cache:
+		return take_state_cache[_take]
+
+		
 	var new_board = copy()
 	var from_square : Square = new_board.get_square(_take.from_square.coordinates)
 	var new_targets:Array[ChessBoard.Square] = []
@@ -191,9 +215,17 @@ func get_new_board_state_take(_take:ChessPiece.Take, full = true):
 	if full:
 		if !new_board.is_game_ended():
 			new_board.next_turn()
+		full_take_state_cache[_take] = new_board
+	else:
+		take_state_cache[_take] = new_board
 	return new_board
 
 func get_new_board_state_move(_move: ChessPiece.Move, full = true) -> ChessBoard:
+	if full:
+		if _move in full_move_state_cache and full:
+			return full_move_state_cache[_move]
+	elif _move in move_state_cache:
+		return move_state_cache[_move]
 	var new_board = copy()
 	var new_move : ChessPiece.Move = ChessPiece.Move.new(_move.piece.copy(), new_board.get_square(_move.from_square.coordinates), new_board.get_square(_move.to_square.coordinates), [])
 	for mv in _move.incidental:
@@ -206,11 +238,13 @@ func get_new_board_state_move(_move: ChessPiece.Move, full = true) -> ChessBoard
 	if full:
 		if !new_board.is_game_ended():
 			new_board.next_turn()
+		full_move_state_cache[_move] = new_board
+	else:
+		move_state_cache[_move] = new_board
 	return new_board
 
 func copy() -> ChessBoard:
-	var new_board = ChessBoard.new(size, constraints)
-	new_board.colors = colors.duplicate()
+	var new_board = ChessBoard.new(size, constraints, colors.duplicate())
 	new_board.current_turn = current_turn
 	for effect in effects:
 		new_board.effects.append(effect.copy(new_board))
@@ -234,7 +268,7 @@ class BoardRow:
 	var row:Array[Square]
 	func _init(row_num:int, row_length:int, ):
 		for i in range(row_length):
-			var color : ChessBoard.SquareColor = (ChessBoard.Black.new() as ChessBoard.SquareColor) if (i+row_num)%2 == 0 else ChessBoard.White.new()
+			var color : SquareColor = SquareColor.black if (i+row_num)%2 == 0 else SquareColor.white
 			row.append(Square.new(color, Vector2(i,row_num)))
 
 	func equals(other:BoardRow):
@@ -266,6 +300,8 @@ class Square:
 
 class SquareColor:
 	var color: Color
+	static var black : SquareColor = Black.new()
+	static var white : SquareColor = White.new()
 
 class Black: 
 	extends SquareColor 
