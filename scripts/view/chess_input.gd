@@ -49,10 +49,10 @@ func set_square(sq : ChessSquareView):
 	move_squares = []
 	take_squares = []
 	if piece != null:
-		for move in board.board.get_valid_moves(square.square):
+		for move in await(board.board.get_valid_moves(square.square)):
 			move_squares.append(move.to_square)
-		for take in board.board.get_valid_takes(square.square):
-			take_squares.append(take.to_square) 
+		for take in await(board.board.get_valid_takes(square.square)):
+			take_squares.append(take.to_square)
 
 	set_highlights()
 
