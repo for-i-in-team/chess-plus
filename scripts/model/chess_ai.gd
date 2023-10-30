@@ -28,14 +28,19 @@ func get_best_option(_board:ChessBoard, _color:ChessPiece.PieceColor, depth:int)
 	var indent : String = ""
 	for i in range(depth):
 		indent += "  "
-	var best_option : ChessPiece.TurnOption = null
-	var best_value : int = -99999
+
+	# Start with random option
+	var best_option : ChessPiece.TurnOption = options.pick_random()
+	var initial_new_board = await(best_option.copy_on_board(_board))
+	var best_value = await(get_board_value_recursive(initial_new_board, _color, depth))
+
+	# Test all options
 	for option in options:
 		print("%sTrying move %s from %s to %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), _color.name])
 		var new_board = await(option.copy_on_board(_board))
 		var value = await(get_board_value_recursive(new_board, _color, depth))
 		print("%sValue of move %s from %s to %s is %s for %s" % [indent, option.piece.name, str(option.from_square.coordinates), str(option.to_square.coordinates), str(value), _color.name])
-		if value >= best_value:
+		if value > best_value:
 			best_option = option
 			best_value = value
 	
