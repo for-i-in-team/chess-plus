@@ -3,19 +3,24 @@ class_name ChessAI
 var color : ChessPiece.PieceColor
 var board : ChessBoard
 var search_depth:int = 0
+var analysis_thread : Thread
 
 func _init(_color : ChessPiece.PieceColor, _board : ChessBoard):
 	color = _color
 	board = _board
+	analysis_thread = Thread.new()
+
 
 	board.events.turn_started.connect_sig(func (_color : ChessPiece.PieceColor):
 		if _color == color:
-			play_turn()
+			if analysis_thread.is_started():
+				analysis_thread.wait_to_finish()
+			analysis_thread.start(play_turn)
 	)
 
 func play_turn():
 	var option = await(get_best_option(board, color, 0))
-	option.option.apply_to_board(board)
+	option.option.apply_to_board.call_deferred(board)
 
 func get_best_option(_board:ChessBoard, _color:ChessPiece.PieceColor, depth:int):
 	var options : Array[ChessPiece.TurnOption] = await(_board.get_all_options(_color))
