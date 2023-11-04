@@ -2,7 +2,6 @@ class_name Utils
 
 class AsyncSignal:
 	signal _base(instance:_AsyncSignalInstance, args:Array)
-	signal _complete(id:int)
 	var running: Dictionary = {}
 	var name:String
 

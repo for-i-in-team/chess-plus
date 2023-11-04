@@ -1,4 +1,4 @@
-class_name ChessPiece	
+class_name ChessPiece
 
 class PieceModifier:
 	func move(_piece:ChessPiece, _board: ChessBoard, _move:Move):
@@ -21,9 +21,22 @@ class PieceModifier:
 
 	func copy():
 		return self
+
+	func equals(other:PieceModifier):
+		return other.get_script() == get_script()
 	
+class TurnOption:
+
+	func apply_to_board(_board:ChessBoard):
+		assert(false, "TurnOption.apply_to_board not implemented")
+
+	func copy_on_board(_board:ChessBoard) -> ChessBoard:
+		assert(false, "TurnOption.copy_on_board not implemented")
+		return null
 
 class Take:
+	extends TurnOption
+
 	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
@@ -48,7 +61,15 @@ class Take:
 				value += target.piece.point_value
 		return value
 
+	func apply_to_board(board:ChessBoard):
+		await(board.take(from_square, to_square))
+
+	func copy_on_board(board:ChessBoard):
+		return await(board.get_new_board_state_take(self))
+
 class Move:
+	extends TurnOption
+
 	var piece : ChessPiece
 	var from_square : ChessBoard.Square
 	var to_square : ChessBoard.Square
@@ -61,6 +82,12 @@ class Move:
 		to_square = _to_square
 		incidental = _incidental
 		self.traversed_squares = _traversed_squares
+
+	func apply_to_board(board:ChessBoard):
+		await(board.move(from_square, to_square))
+
+	func copy_on_board(board:ChessBoard):
+		return await(board.get_new_board_state_move(self))
 
 class PieceColor:
 	var name : String
@@ -204,3 +231,35 @@ func copy() -> ChessPiece:
 
 func _to_string():
 	return color.name + " " + name
+
+func equals(other:ChessPiece):
+	if other.get_script() == get_script() and name == other.name and color == other.color and point_value == other.point_value:
+		for modifier in modifiers:
+			var found = false
+			for other_modifier in other.modifiers:
+				if modifier.equals(other_modifier):
+					found = true
+					break
+			if not found:
+				return false
+		
+		for take_pattern in take_patterns:
+			var found = false
+			for other_take_pattern in other.take_patterns:
+				if take_pattern.equals(other_take_pattern):
+					found = true
+					break
+			if not found:
+				return false
+		
+		for move_pattern in move_patterns:
+			var found = false
+			for other_move_pattern in other.move_patterns:
+				if move_pattern.equals(other_move_pattern):
+					found = true
+					break
+			if not found:
+				return false
+		return true
+		
+	return false

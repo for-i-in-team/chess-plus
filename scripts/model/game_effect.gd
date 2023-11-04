@@ -5,18 +5,19 @@ var board:ChessBoard
 func set_board(_board:ChessBoard):
 	board = _board
 
-func copy(_board:ChessBoard):
-	pass
+func copy():
+	assert(false, "Must implement copy method")
 
 class EndOnCheckmate:
 	extends GameEffect
+	var name:String = "EndOnCheckmate"
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.turn_started.connect_sig(func(color): handle_move(color))
+		_board.events.turn_started.connect_sig(func(color): await(handle_move(color)))
 
 	func handle_move(color:ChessPiece.PieceColor):
-		if is_checkmate(board, color):
+		if await(is_checkmate(board, color)):
 			board.events.color_lost.emit([color])
 
 	func is_checkmate(_board:ChessBoard, color):
@@ -30,41 +31,41 @@ class EndOnCheckmate:
 						checkable_pieces.append(square)
 		if no_pieces:
 			return true
-		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
+		if len(await(board.get_all_moves(color))) == 0 and len(await(board.get_all_takes(color))) == 0:
 			for square in checkable_pieces:
 				if square.piece.get_modifier(TraditionalPieces.Checkable).is_in_check(square.piece,board, square):
 					return true
 		
 		return false
 
-	func copy(_board:ChessBoard):
+	func copy():
 		var new:EndOnCheckmate = EndOnCheckmate.new()
-		new.set_board(_board)
 		return new
 
 class EndOnStalemate:
 	extends GameEffect
+	var name:String = "EndOnStalemate"
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
-		_board.events.turn_started.connect_sig(func(color): handle_move(color))
+		_board.events.turn_started.connect_sig(func(color): await(handle_move(color)))
 
 	func handle_move(color:ChessPiece.PieceColor):
-		if is_stalemate(board, color):
+		if await(is_stalemate(board, color)):
 			board.events.stalemated.emit([color])
 
 	func is_stalemate(_board:ChessBoard, color):
-		if len(board.get_all_moves(color)) == 0 and len(board.get_all_takes(color)) == 0:
+		if len(await(board.get_all_options(color))) == 0:
 			return true
 		return false
 
-	func copy(_board:ChessBoard):
+	func copy():
 		var new:EndOnStalemate = EndOnStalemate.new()
-		new.set_board(_board)
 		return new
 
 class PiecesPromoteToQueens:
 	extends GameEffect
+	var name:String = "PiecesPromoteToQueens"
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
@@ -81,9 +82,14 @@ class PiecesPromoteToQueens:
 					move.piece = move.to_square.piece
 					await(board.events.piece_change.emit([old_piece, move.to_square.piece]))
 
+	func copy():
+		var new:PiecesPromoteToQueens = PiecesPromoteToQueens.new()
+		return new
+
 			
 class LoseOnCheckableTaken:
 	extends GameEffect
+	var name:String = "LoseOnCheckableTaken"
 
 	func set_board(_board:ChessBoard):
 		super.set_board(_board)
@@ -93,3 +99,7 @@ class LoseOnCheckableTaken:
 		for target in take.taken_pieces:
 			if target.get_modifier(TraditionalPieces.Checkable) != null:
 				board.events.color_lost.emit([target.color])
+
+	func copy():
+		var new:LoseOnCheckableTaken = LoseOnCheckableTaken.new()
+		return new

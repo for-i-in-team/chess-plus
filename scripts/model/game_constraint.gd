@@ -15,6 +15,8 @@ func validate_move(_board:ChessBoard, _move:ChessPiece.Move, _next_state:ChessBo
 func validate_take(_board:ChessBoard, _take:ChessPiece.Take,_next_state:ChessBoard) -> bool:
 	return true
 
+func equals(other: GameConstraint):
+	return other.get_script() == get_script()
 
 class FriendlyFireConstraint:
 	extends GameConstraint
