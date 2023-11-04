@@ -101,10 +101,8 @@ func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
 	assert( _move != null, "Invalid move %s -> %s" % [origin_square.to_string(), target_square.to_string()])
 	var piece:ChessPiece = origin_square.piece
 	piece.move(self, _move)
-	
 	await(events.piece_moved.emit([_move]))
-	move_cache = {}
-	take_cache = {}
+	reset_cache(_move)
 	check_eliminations()
 	if !is_game_ended():
 		next_turn()
@@ -137,8 +135,7 @@ func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square)
 	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
 	origin_square.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
-	move_cache = {}
-	take_cache = {}
+	reset_cache(_take)
 	check_eliminations()
 	if !is_game_ended():
 		next_turn()
@@ -263,6 +260,27 @@ func equals(other:ChessBoard):
 		if not board[i].equals(other.board[i]):
 			return false
 	return true
+
+func reset_cache(option : ChessPiece.TurnOption):
+	var cached_board : ChessBoard = null
+	if option in full_move_state_cache:
+		cached_board = full_move_state_cache[option]
+	elif option in full_take_state_cache:
+		cached_board = full_take_state_cache[option]
+	if cached_board != null:
+		full_move_state_cache = cached_board.full_move_state_cache
+		full_take_state_cache = cached_board.full_take_state_cache
+		move_state_cache = cached_board.move_state_cache
+		take_state_cache = cached_board.take_state_cache
+		move_cache = cached_board.move_cache
+		take_cache = cached_board.take_cache
+	else:
+		full_move_state_cache = {}
+		full_take_state_cache = {}
+		move_state_cache = {}
+		take_state_cache = {}
+		move_cache = {}
+		take_cache = {}
 
 class BoardRow:
 	var row:Array[Square]
