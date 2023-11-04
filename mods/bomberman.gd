@@ -1,7 +1,7 @@
 class_name BomberMan
 
 extends GameEffect
-
+var name:String = "BomberManEffect"
 
 func set_board(_board:ChessBoard):
 	super.set_board(_board)
@@ -25,9 +25,8 @@ func explode(take:ChessPiece.Take):
 	await(board.events.piece_taken.emit([new_take]))
 
 
-func copy(_board:ChessBoard):
+func copy():
 	var new:BomberMan = BomberMan.new()
-	new.set_board(_board)
 	return new
 
 class BombTake:

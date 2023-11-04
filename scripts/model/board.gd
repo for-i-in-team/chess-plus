@@ -244,7 +244,7 @@ func copy() -> ChessBoard:
 	var new_board = ChessBoard.new(size, constraints, colors.duplicate())
 	new_board.current_turn = current_turn
 	for effect in effects:
-		new_board.effects.append(effect.copy(new_board))
+		new_board.add_effect(effect.copy())
 	for row in board:
 		var new_row = BoardRow.new(row.row[0].coordinates.y as int, row.row.size())
 		for square in row.row:
