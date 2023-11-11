@@ -106,6 +106,7 @@ class PieceColor:
 		return Vector2(move_direction.y, move_direction.x)
 
 
+var id : int
 var name : String
 var color : PieceColor
 var point_value : float
@@ -114,6 +115,7 @@ var take_patterns:Array[PieceMovement.TakePattern]
 var modifiers:Array[PieceModifier]
 
 func _init(_name, _color:PieceColor, _point_value:float, _move_patterns:Array[PieceMovement.MovePattern], _take_patterns:Array[PieceMovement.TakePattern], _modifiers:Array[PieceModifier] = []):
+	id = self.get_instance_id()
 	name = _name
 	color = _color
 	point_value = _point_value
