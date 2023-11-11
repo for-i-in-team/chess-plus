@@ -27,6 +27,6 @@ func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 	for child in get_children():
 		if child is ChessSquareView:
 			var square_view:ChessSquareView = child as ChessSquareView
-			if square_view.square == square:
+			if square_view.square.coordinates == square.coordinates:
 				return square_view
 	return null

@@ -62,7 +62,7 @@ class Take:
 		return value
 
 	func apply_to_board(board:ChessBoard):
-		await(board.take(from_square, to_square))
+		await(board.take(from_square.coordinates, to_square.coordinates))
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_take(self))
@@ -84,7 +84,7 @@ class Move:
 		self.traversed_squares = _traversed_squares
 
 	func apply_to_board(board:ChessBoard):
-		await(board.move(from_square, to_square))
+		await(board.move(from_square.coordinates, to_square.coordinates))
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_move(self))

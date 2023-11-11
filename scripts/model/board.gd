@@ -92,15 +92,14 @@ func get_all_options(color:ChessPiece.PieceColor) -> Array[ChessPiece.TurnOption
 	out.append_array(await(get_all_takes(color)))
 	return out
 
-func move(origin_square:ChessBoard.Square, target_square:ChessBoard.Square):
+func move(origin:Vector2, target:Vector2):
 	var _move : ChessPiece.Move
-	for m in await(get_valid_moves(origin_square)):
-		if m.to_square == target_square:
+	for m in await(get_valid_moves(get_square(origin))):
+		if m.to_square.coordinates == target:
 			_move = m
 			break
-	assert( _move != null, "Invalid move %s -> %s" % [origin_square.to_string(), target_square.to_string()])
-	var piece:ChessPiece = origin_square.piece
-	piece.move(self, _move)
+	assert( _move != null, "Invalid move %s -> %s" % [origin, target])
+	_move.piece.move(self, _move)
 	await(events.piece_moved.emit([_move]))
 	reset_cache(_move)
 	check_eliminations()
@@ -125,15 +124,15 @@ func check_eliminations():
 		await(events.color_lost.emit([color]))
 			
 
-func take(origin_square:ChessBoard.Square, destination_square:ChessBoard.Square):
-	var takes :Array[ChessPiece.Take] = await(get_valid_takes(origin_square))
+func take(origin:Vector2, destination:Vector2):
+	var takes :Array[ChessPiece.Take] = await(get_valid_takes(get_square(origin)))
 	var _take : ChessPiece.Take = null
 	for t in takes:
-		if t.to_square == destination_square:
+		if t.to_square.coordinates == destination:
 			_take = t
 			break
-	assert( take != null, "Invalid move %s -> %s" % [origin_square.to_string(), destination_square.to_string()])
-	origin_square.piece.take(self, _take)
+	assert( take != null, "Invalid move %s -> %s" % [origin, destination])
+	_take.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
 	reset_cache(_take)
 	check_eliminations()

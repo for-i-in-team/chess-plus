@@ -27,7 +27,6 @@ func handle_selection(sq: ChessSquareView):
 		moving = true
 		await(set_square(sq))
 		moving = false
-	
 
 func set_square(sq : ChessSquareView):
 	if sq == null:
@@ -39,9 +38,9 @@ func set_square(sq : ChessSquareView):
 		return
 	if current_turn == color and square != null and square.square.piece != null and square.square.piece.color == color:
 		if sq.square in move_squares:
-			await(board.board.move(square.square, sq.square))
+			await(board.board.move(square.square.coordinates, sq.square.coordinates))
 		if sq.square in take_squares:
-			await(board.board.take(square.square, sq.square))
+			await(board.board.take(square.square.coordinates, sq.square.coordinates))
 
 	square = sq
 

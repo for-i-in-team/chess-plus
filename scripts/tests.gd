@@ -99,12 +99,12 @@ func test_ai_speed():
 	)
 
 	breakpoint
-	for i in range(20): # BOOKMARK Seems like performance is probably as good as it gets, 1. add board state tree analysis thread (board has get_next_state function, which caches board state, need to change the way the view works to recieve a new board after every move so the cache is preserved better) 2. set that up to run on player's turn 3. have the AI pick the best move at random from the tree, prioritising takes
+	for i in range(20):
 		board = BomberMan.get_bomberman_board()
 		_bot = ChessAI.new(ChessPiece.PieceColor.black, board)
 		var moves : Array[ChessPiece.Move] = board.get_square(Vector2(5,1)).piece.get_valid_moves(board, board.get_square(Vector2(5,1)))
 		var start_time = Time.get_ticks_usec()
-		board.move(moves[0].from_square, moves[0].to_square)
+		board.move(moves[0].from_square.coordinates, moves[0].to_square.coordinates)
 		times.append(Time.get_ticks_usec() - start_time)
 	print(times)
 	total = 0
