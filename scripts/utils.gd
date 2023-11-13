@@ -43,3 +43,43 @@ class _AsyncSignalInstance:
 			await(complete)
 			running -= 1
 		all_complete.emit()
+
+static func recursive_to_dict(object:Variant):
+	var dict = inst_to_dict(object)
+	var output = Dictionary()
+	for key in dict:
+		if dict[key] is Object:
+			output[key+"__recursed__"] = recursive_to_dict(dict[key])
+		elif dict[key] is Array:
+			var array:Array = dict[key]
+			var new_array = []
+			for i in range(array.size()):
+				if array[i] is Object:
+					new_array.append(recursive_to_dict(array[i]))
+				else:
+					new_array.append(array[i])
+			output[key] = new_array
+		elif dict[key] is Dictionary:
+			output[key] = recursive_to_dict(dict[key])
+		else:
+			output[key] = dict[key]
+
+	return output
+
+static func recursive_from_dict(dict:Dictionary):
+	for key in dict:
+		if key.ends_with("__recursed__"):
+			dict[key.replace("__recursed__", "")] = recursive_from_dict(dict[key])
+		elif dict[key] is Array:
+			var array:Array = dict[key]
+			var new_array = []
+			for i in range(array.size()):
+				if array[i] is Dictionary:
+					new_array.append(recursive_from_dict(array[i]))
+				else:
+					new_array.append(array[i])
+			dict[key] = new_array
+		elif dict[key] is Dictionary:
+			dict[key] = recursive_from_dict(dict[key])
+	
+	return dict_to_inst(dict)
