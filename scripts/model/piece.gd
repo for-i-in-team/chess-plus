@@ -66,7 +66,8 @@ class Take:
 		return value
 
 	func apply_to_board(board:ChessBoard):
-		await(board.take(from_square.coordinates, to_square.coordinates))
+		await(board.direct_take(self))
+
 	func convert_for_board(board:ChessBoard):
 		var new_take = Take.new(piece, from_square, to_square, [], [])
 		new_take.from_square = board.get_square(from_square.coordinates)
@@ -99,7 +100,8 @@ class Move:
 		self.traversed_squares = _traversed_squares
 
 	func apply_to_board(board:ChessBoard):
-		await(board.move(from_square.coordinates, to_square.coordinates))
+		await(board.direct_move(self))
+
 	func convert_for_board(board:ChessBoard):
 		var new_move = Move.new(piece, from_square, to_square, [], [])
 		new_move.from_square = board.get_square(from_square.coordinates)

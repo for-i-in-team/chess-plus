@@ -108,6 +108,9 @@ func move(origin:Vector2, target:Vector2):
 			_move = m
 			break
 	assert( _move != null, "Invalid move %s -> %s" % [origin, target])
+	await(direct_move(_move))
+
+func direct_move(_move:ChessPiece.Move):
 	_move.piece.move(self, _move)
 	await(events.piece_moved.emit([_move]))
 	reset_cache(_move)
@@ -141,6 +144,10 @@ func take(origin:Vector2, destination:Vector2):
 			_take = t
 			break
 	assert( take != null, "Invalid move %s -> %s" % [origin, destination])
+	await(direct_take(_take))
+	
+
+func direct_take(_take:ChessPiece.Take):
 	_take.piece.take(self, _take)
 	await(events.piece_taken.emit([_take]))
 	reset_cache(_take)
