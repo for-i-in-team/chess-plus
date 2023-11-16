@@ -123,6 +123,8 @@ class PieceColor:
 	static var white = PieceColor.new("White", Color.WHITE, Vector2(0, 1))
 	static var black = PieceColor.new("Black", Color(0.13,0.14,0.18), Vector2(0, -1))
 
+	static var colors = [white, black]
+
 	func _init(_name, _color, _move_direction):
 		name = _name
 		color = _color
@@ -130,6 +132,12 @@ class PieceColor:
 
 	func get_perpendicular_direction():
 		return Vector2(move_direction.y, move_direction.x)
+
+	func on_deserialize():
+		for piece_color in colors:
+			if piece_color.name == name:
+				return piece_color
+		return self
 
 
 var id : int
