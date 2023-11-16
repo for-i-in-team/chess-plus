@@ -30,6 +30,10 @@ class TurnOption:
 	func apply_to_board(_board:ChessBoard):
 		assert(false, "TurnOption.apply_to_board not implemented")
 
+	func convert_for_board(_board:ChessBoard) -> TurnOption:
+		assert(false, "TurnOption.convert_for_board not implemented")
+		return null
+
 	func copy_on_board(_board:ChessBoard) -> ChessBoard:
 		assert(false, "TurnOption.copy_on_board not implemented")
 		return null
@@ -63,6 +67,17 @@ class Take:
 
 	func apply_to_board(board:ChessBoard):
 		await(board.take(from_square.coordinates, to_square.coordinates))
+	func convert_for_board(board:ChessBoard):
+		var new_take = Take.new(piece, from_square, to_square, [], [])
+		new_take.from_square = board.get_square(from_square.coordinates)
+		new_take.to_square = board.get_square(to_square.coordinates)
+		new_take.traversed_squares.clear()
+		for square in traversed_squares:
+			new_take.traversed_squares.append(board.get_square(square.coordinates))
+		new_take.targets.clear()
+		for square in targets:
+			new_take.targets.append(board.get_square(square.coordinates))
+		return new_take
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_take(self))
@@ -85,6 +100,17 @@ class Move:
 
 	func apply_to_board(board:ChessBoard):
 		await(board.move(from_square.coordinates, to_square.coordinates))
+	func convert_for_board(board:ChessBoard):
+		var new_move = Move.new(piece, from_square, to_square, [], [])
+		new_move.from_square = board.get_square(from_square.coordinates)
+		new_move.to_square = board.get_square(to_square.coordinates)
+		new_move.traversed_squares.clear()
+		for square in traversed_squares:
+			new_move.traversed_squares.append(board.get_square(square.coordinates))
+		new_move.incidental.clear()
+		for move in incidental:
+			new_move.incidental.append(move.convert_for_board(board))
+		return new_move
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_move(self))

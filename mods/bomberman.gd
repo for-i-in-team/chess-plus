@@ -32,6 +32,23 @@ func copy():
 class BombTake:
 	extends ChessPiece.Take
 
+	func apply_to_board(board:ChessBoard):
+		for target in targets:
+			target.piece = null
+		await(board.events.piece_taken.emit([self]))
+
+	func convert_for_board(board:ChessBoard):
+		var new_take = BombTake.new(piece, from_square, to_square, [], [])
+		new_take.from_square = board.get_square(from_square.coordinates)
+		new_take.to_square = board.get_square(to_square.coordinates)
+		new_take.traversed_squares.clear()
+		for square in traversed_squares:
+			new_take.traversed_squares.append(board.get_square(square.coordinates))
+		new_take.targets.clear()
+		for square in targets:
+			new_take.targets.append(board.get_square(square.coordinates))
+		return new_take
+
 static func get_bomberman_board():
 	var _board:ChessBoard = ChessBoard.new(Vector2(8,8), [GameConstraint.FriendlyFireConstraint.new(), GameConstraint.NoCheckConstraint.new()])
 	TraditionalPieces.lay_out_traditional_board(_board)

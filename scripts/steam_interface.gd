@@ -47,10 +47,7 @@ func _on_lobby_match_list(lobbies:Array):
 func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response: int):
 	print("Lobby Joined: " + str(lobby_id) + " " + str(_permissions) + " " + str(_locked) + " " + str(response))
 	if current_lobby == null or current_lobby._lobby_id != lobby_id:
-		var old_lobby = current_lobby
 		current_lobby = Lobby.new(lobby_id)
-		if old_lobby.board != null:
-			current_lobby.attach_lobby_to_board(old_lobby.board)
 
 	current_lobby.update_lobby_members()
 	for m in current_lobby.members:
@@ -67,7 +64,6 @@ class Lobby:
 	var created : bool = false
 	var _lobby_id:int
 	var members :Array = []
-	var board : ChessBoard = null
 	var hosting : bool = false
 	var p2p_initialized : bool = false
 
@@ -90,12 +86,14 @@ class Lobby:
 		Steam.p2p_session_request.connect(_on_p2p_session_request)
 		Steam.p2p_session_connect_fail.connect(_on_p2p_session_connect_fail)
 	
-	func send_move(from: ChessBoard.Square, to: ChessBoard.Square):
-		_send_p2p_packet({"message":"move", "move": Utils.recursive_to_dict(ChessPiece.Move.new(null, from, to, []))}, 0)
+	func send_board(_board: ChessBoard):
+		_send_p2p_packet({"message":"board", "board": Utils.recursive_to_dict(_board)}, 0)
 
-	func send_take(from: ChessBoard.Square, to: ChessBoard.Square):
-		_send_p2p_packet({"message":"take", "take": Utils.recursive_to_dict(ChessPiece.Take.new(null, from, to, [], []))}, 0)
+	func send_turn(turn_option: ChessPiece.TurnOption):
+		_send_p2p_packet({"message":"turn_taken", "turn_option": Utils.recursive_to_dict(turn_option)}, 0)
 
+	func set_color(color: ChessPiece.PieceColor, id : int):
+		_send_p2p_packet({"message":"set_color", "color": Utils.recursive_to_dict(color)}, id)
 
 	func update_lobby_members():
 		var current_members : Array[int] = []
