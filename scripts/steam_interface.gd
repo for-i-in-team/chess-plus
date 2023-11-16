@@ -69,6 +69,8 @@ class Lobby:
 	var members :Array = []
 	var board : ChessBoard = null
 	var hosting : bool = false
+	var p2p_initialized : bool = false
+
 	signal member_joined(member: SteamLobbyMember)
 	signal member_left(member: SteamLobbyMember)
 	signal message_received(message: SteamPacket)
@@ -87,14 +89,6 @@ class Lobby:
 		Steam.persona_state_change.connect(_on_persona_change)
 		Steam.p2p_session_request.connect(_on_p2p_session_request)
 		Steam.p2p_session_connect_fail.connect(_on_p2p_session_connect_fail)
-
-		print("Sending P2P handshake to the lobby")
-
-		_send_p2p_packet({"message":"handshake", "from":Steam.getSteamID()}, 0)
-
-	
-	func attach_lobby_to_board(_board: ChessBoard):
-		board = _board
 	
 	func send_move(from: ChessBoard.Square, to: ChessBoard.Square):
 		_send_p2p_packet({"message":"move", "move": Utils.recursive_to_dict(ChessPiece.Move.new(null, from, to, []))}, 0)
@@ -187,14 +181,16 @@ class Lobby:
 
 	func _process(_delta:float):
 		var p = _read_p2p_packet()
-		if p.sender_id != 0:
-			if 'message' in p.data:
-				if p.data['message'] == "move":
-					var move = Utils.recursive_from_dict(p.data['move'])
-					board.move(move.from_square.coordinates, move.to_square.coordinates)
-				elif p.data['message'] == "take":
-					var take = Utils.recursive_from_dict(p.data['take'])
-					board.take(take.from_square.coordinates, take.to_square.coordinates)
+		if 'message' in p.data:
+			if p.data['message'] == 'handshake_request':
+				_send_p2p_packet({"message":"handshake_ack", "from":Steam.getSteamID()}, p.sender_id)
+			elif p.data['message'] == 'handshake_ack':
+				p2p_initialized = true
+			elif p.sender_id != 0:
+				message_received.emit(p)
+
+		if not p2p_initialized and len(members) > 0 and created:
+			_send_p2p_packet({"message":"handshake_request", "from":Steam.getSteamID()}, 0)
 
 class SteamLobbyMember:
 	var id : int
