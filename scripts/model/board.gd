@@ -3,9 +3,9 @@ class_name ChessBoard
 var size :Vector2
 var board : Array[BoardRow] = []
 var events : Events = Events.new()
-var constraints:Array[GameConstraint] = []
-var effects:Array[GameEffect] = []
-var colors:Array[ChessPiece.PieceColor]
+var constraints:Array = []
+var effects:Array = []
+var colors:Array
 var current_turn : ChessPiece.PieceColor = ChessPiece.PieceColor.white
 var full_move_state_cache : Dictionary = {}
 var full_take_state_cache : Dictionary = {}
@@ -15,7 +15,7 @@ var move_cache : Dictionary = {}
 var take_cache : Dictionary = {}
 
 
-func _init(board_size:Vector2, _constraints:Array[GameConstraint] = [], _colors:Array[ChessPiece.PieceColor] = []):
+func _init(board_size:Vector2, _constraints:Array = [], _colors:Array = []):
 	if len(_constraints) > 0:
 		constraints = _constraints
 	if len(_colors) > 0:
