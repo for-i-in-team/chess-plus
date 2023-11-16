@@ -47,7 +47,15 @@ class _AsyncSignalInstance:
 static func recursive_to_dict(object:Variant):
 	var dict = inst_to_dict(object)
 	var output = Dictionary()
+
+	var ignored_keys : Array[String] = []
+	if object.has_method("get_ignored_keys"):
+		ignored_keys = object.get_ignored_keys()
+
 	for key in dict:
+		if key in ignored_keys:
+			continue
+
 		if dict[key] is Object:
 			output[key+"__recursed__"] = recursive_to_dict(dict[key])
 		elif dict[key] is Array:
@@ -82,4 +90,9 @@ static func recursive_from_dict(dict:Dictionary):
 		elif dict[key] is Dictionary:
 			dict[key] = recursive_from_dict(dict[key])
 	
-	return dict_to_inst(dict)
+	var inst = dict_to_inst(dict)
+
+	if inst.has_method("on_deserialize"):
+		inst = inst.on_deserialize()
+
+	return inst
