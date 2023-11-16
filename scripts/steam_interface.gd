@@ -5,6 +5,8 @@ var _INIT: Dictionary
 var STEAM_ENABLED: bool = false
 var current_lobby : Lobby = null
 
+signal lobby_joined()
+
 func _ready():
 	OS.set_environment("SteamAppId", "480")
 	_INIT = Steam.steamInitEx(true)
@@ -30,8 +32,9 @@ func _process(_delta: float) -> void:
 		current_lobby._process(_delta)
 
 func create_lobby():
-	if STEAM_ENABLED:
-		current_lobby = Lobby.new(0)
+	assert(STEAM_ENABLED, "Steam has not initialised, output was " + str(_INIT))
+	current_lobby = Lobby.new(0)
+	await(Steam.lobby_created)
 
 func _on_lobby_match_list(lobbies:Array):
 	print("Lobby Match List: " + str(lobbies))
@@ -49,9 +52,11 @@ func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response:
 		if old_lobby.board != null:
 			current_lobby.attach_lobby_to_board(old_lobby.board)
 
-	current_lobby._get_lobby_members()
+	current_lobby.update_lobby_members()
 	for m in current_lobby.members:
 		print(str(m.id) + " " + m.name)
+
+	lobby_joined.emit()
 	
 func _on_lobby_join_requested(lobby_id: int, friendID: int) -> void:
 	print("Lobby Join Requested: " + str(lobby_id) + " " + str(friendID))
@@ -64,6 +69,9 @@ class Lobby:
 	var members :Array = []
 	var board : ChessBoard = null
 	var hosting : bool = false
+	signal member_joined(member: SteamLobbyMember)
+	signal member_left(member: SteamLobbyMember)
+	signal message_received(message: SteamPacket)
 
 	func _init(id:int):
 		if id == 0:
@@ -94,13 +102,29 @@ class Lobby:
 	func send_take(from: ChessBoard.Square, to: ChessBoard.Square):
 		_send_p2p_packet({"message":"take", "take": Utils.recursive_to_dict(ChessPiece.Take.new(null, from, to, [], []))}, 0)
 
-	func _get_lobby_members():
-		members.clear()
 
-		for m in range(Steam.getNumLobbyMembers(_lobby_id)):
-			var id = Steam.getLobbyMemberByIndex(_lobby_id, m)
+	func update_lobby_members():
+		var current_members : Array[int] = []
+		for i in range(Steam.getNumLobbyMembers(_lobby_id)):
+			var id : int = Steam.getLobbyMemberByIndex(_lobby_id, i)
 			if id != Steam.getSteamID():
-				members.append(SteamLobbyMember.new(id, Steam.getFriendPersonaName(id)))
+				current_members.append(id)
+
+				var found : bool = false
+				for existing in members:
+					if existing.id == id:
+						found = true
+						break
+				if not found:
+					var name : String = Steam.getFriendPersonaName(id)
+					members.append(SteamLobbyMember.new(id, name))
+					member_joined.emit(members[-1])
+		
+		for existing in members:
+			if not existing.id in current_members:
+				members.erase(existing)
+				member_left.emit(existing)
+
 
 	func _on_lobby_created(connected: int, lobby_id: int) -> void:
 		print("Lobby Created: " + str(connected) + " " + str(lobby_id))
@@ -116,7 +140,7 @@ class Lobby:
 
 	func _on_lobby_chat_update(lobby_id: int, steam_id_user_changed: int, steam_id_making_change: int, chat_state_change: int) -> void:
 		print("Lobby Chat Update: " + str(lobby_id) + " " + str(steam_id_user_changed) + " " + str(steam_id_making_change) + " " + str(chat_state_change))
-		_get_lobby_members()
+		update_lobby_members()
 
 	func _on_lobby_message(lobby_id: int, steam_id_user: int, message: String) -> void:
 		print("Lobby Message: " + str(lobby_id) + " " + str(steam_id_user) + " " + message)
@@ -156,8 +180,6 @@ class Lobby:
 			buffer.resize(size)
 			var packet: Dictionary = Steam.readP2PPacket(size, 0)
 			var data = bytes_to_var(packet['data'])
-
-			print("recieved_p2p" + str(data))
 
 			return SteamPacket.new(packet['steam_id_remote'], data)
 		else:
