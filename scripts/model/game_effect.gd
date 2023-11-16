@@ -2,6 +2,9 @@ class_name GameEffect
 
 var board:ChessBoard
 
+func get_ignored_keys() -> Array[String]:
+	return ["board"]
+
 func set_board(_board:ChessBoard):
 	board = _board
 
