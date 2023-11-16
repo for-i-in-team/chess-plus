@@ -36,7 +36,7 @@ func init(_board:ChessBoardView, chess_piece:ChessPiece):
 		var square_view : ChessSquareView = get_parent()
 
 		for t in take.targets:
-			if not taken and square_view.square == t:
+			if not taken and square_view.square.coordinates == t.coordinates:
 				taken = true
 				await(take_complete)
 				break
