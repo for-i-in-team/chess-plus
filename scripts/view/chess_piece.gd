@@ -78,6 +78,6 @@ func _process(delta):
 			move_complete.emit()
 
 	if taken:
-		$sprite.modulate.a = $sprite.modulate.a - 0.01
+		$sprite.modulate.a = $sprite.modulate.a - delta
 		if $sprite.modulate.a <= 0:
 			take_complete.emit()
