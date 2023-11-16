@@ -39,12 +39,8 @@ func set_square(sq : ChessSquareView):
 	if current_turn == color and square != null and square.square.piece != null and square.square.piece.color == color:
 		if sq.square in move_squares:
 			await(board.board.move(square.square.coordinates, sq.square.coordinates))
-			if SteamSession.current_lobby != null:
-				SteamSession.current_lobby.send_move(square.square, sq.square)
 		if sq.square in take_squares:
 			await(board.board.take(square.square.coordinates, sq.square.coordinates))
-			if SteamSession.current_lobby != null:
-				SteamSession.current_lobby.send_take(square.square, sq.square)
 
 	square = sq
 
