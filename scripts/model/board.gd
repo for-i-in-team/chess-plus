@@ -14,6 +14,15 @@ var take_state_cache : Dictionary = {}
 var move_cache : Dictionary = {}
 var take_cache : Dictionary = {}
 
+func get_ignored_keys() -> Array[String]:
+	return ["events", "full_move_state_cache", "full_take_state_cache", "move_state_cache", "take_state_cache", "move_cache", "take_cache"]
+
+func on_deserialize():
+	for effect in effects:
+		effect.set_board(self)
+
+	return self
+
 
 func _init(board_size:Vector2, _constraints:Array = [], _colors:Array = []):
 	if len(_constraints) > 0:
