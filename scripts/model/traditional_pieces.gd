@@ -19,7 +19,7 @@ class CanEnPassant:
 class IsEnPassantable:
 	extends ChessPiece.PieceModifier
 
-	var en_passantable_coords : Array[Vector2] = []
+	var en_passantable_coords : Array = []
 
 	func turn_started(piece:ChessPiece, _board:ChessBoard, turn_color: ChessPiece.PieceColor):
 		if turn_color == piece.color:
@@ -50,7 +50,7 @@ class DoubleFirstMove:
 
 	var has_moved:bool = false
 
-	func _init(_directions:Array[Vector2], _distance:int, _jumps_pieces:bool = false):
+	func _init(_directions:Array, _distance:int, _jumps_pieces:bool = false):
 		super._init(_directions, _distance*2, _jumps_pieces)
 
 	func move(piece:ChessPiece, board: ChessBoard, _move:ChessPiece.Move):

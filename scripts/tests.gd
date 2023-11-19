@@ -99,12 +99,12 @@ func test_ai_speed():
 	)
 
 	breakpoint
-	for i in range(20): # BOOKMARK Seems like performance is probably as good as it gets, 1. add board state tree analysis thread (board has get_next_state function, which caches board state, need to change the way the view works to recieve a new board after every move so the cache is preserved better) 2. set that up to run on player's turn 3. have the AI pick the best move at random from the tree, prioritising takes
+	for i in range(20):
 		board = BomberMan.get_bomberman_board()
 		_bot = ChessAI.new(ChessPiece.PieceColor.black, board)
 		var moves : Array[ChessPiece.Move] = board.get_square(Vector2(5,1)).piece.get_valid_moves(board, board.get_square(Vector2(5,1)))
 		var start_time = Time.get_ticks_usec()
-		board.move(moves[0].from_square, moves[0].to_square)
+		board.move(moves[0].from_square.coordinates, moves[0].to_square.coordinates)
 		times.append(Time.get_ticks_usec() - start_time)
 	print(times)
 	total = 0
@@ -130,3 +130,73 @@ func performance_test(function : Callable, iterations : int = 10000):
 	print("Total: " + str(total))
 	
 	PerformanceTracker.display_performance_summary(total)
+
+
+class ChildObject:
+	var id : int
+
+	func _init(id:int):
+		self.id = id
+
+class SerialisableObject:
+
+	var a : int
+	var some_array : Array[int]
+	var some_dict : Dictionary
+	var some_string : String
+	var custom_object : ChildObject
+
+	func _init(a:int, some_array:Array, some_dict:Dictionary, some_string:String, custom_object_id:int):
+		self.a = a
+		self.some_array = some_array
+		self.some_dict = some_dict
+		self.some_string = some_string
+		self.custom_object = ChildObject.new(custom_object_id)
+
+static func serialisation_tests():
+	simple_bytes_to_var_test()
+	var some_object : SerialisableObject = SerialisableObject.new(5, [1,2,3,4,5], {"a":1, "b":2, "c":3}, "Hello World", 5)
+
+	test_deserialisation(some_object, bytes_to_var(var_to_bytes(some_object)))
+
+	test_deserialisation(some_object, str_to_var(var_to_str(some_object)))
+	
+	test_deserialisation(some_object, bytes_to_var_with_objects(var_to_bytes_with_objects(some_object)))
+
+	test_deserialisation(some_object, dict_to_inst(inst_to_dict(some_object)))
+
+	
+	inst_to_dict_test()
+
+	breakpoint
+	
+static func test_deserialisation(original, deserialised):
+	assert(deserialised != null, "Deserialisation produced a null value")
+	assert(original.a == deserialised.a, "Serialisation failed to preserve integer identity")
+	assert(original.some_string == deserialised.some_string, "Serialisation failed to preserve string identity")
+	assert(len(original.some_array) == len(deserialised.some_array), "Serialisation failed to preserve list contents")
+	assert(len(original.some_dict) == len(deserialised.some_dict), "Serialisation failed to preserve dictionary contents")
+	assert(original.custom_object.id == deserialised.custom_object.id, "Serialisation failed to preserve attributes of child objects")
+	assert(deserialised is SerialisableObject, "Serialisation failed to preserve object type")
+	print("Successful deserialisation!")
+
+static func inst_to_dict_test():
+	var some_object : SerialisableObject = SerialisableObject.new(5, [1,2,3,4,5], {"a":1, "b":2, "c":3}, "Hello World", 5)
+	var dict = inst_to_dict(some_object)
+
+	for key in dict.keys():
+		assert(not dict[key] is Object, "inst_to_dict failed to convert " + key +" to variant")
+
+class TestClass:
+	var a : int
+	
+	func _init(a : int):
+		self.a = a
+
+static func simple_bytes_to_var_test():
+
+	var some_object : TestClass = TestClass.new(5)
+	var bytes = var_to_bytes_with_objects(some_object)
+	print(bytes)
+	var deserialised = bytes_to_var_with_objects(bytes)
+	assert(deserialised != null, "Deserialisation produced a null value")

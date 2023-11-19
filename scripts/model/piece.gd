@@ -30,6 +30,10 @@ class TurnOption:
 	func apply_to_board(_board:ChessBoard):
 		assert(false, "TurnOption.apply_to_board not implemented")
 
+	func convert_for_board(_board:ChessBoard) -> TurnOption:
+		assert(false, "TurnOption.convert_for_board not implemented")
+		return null
+
 	func copy_on_board(_board:ChessBoard) -> ChessBoard:
 		assert(false, "TurnOption.copy_on_board not implemented")
 		return null
@@ -62,7 +66,19 @@ class Take:
 		return value
 
 	func apply_to_board(board:ChessBoard):
-		await(board.take(from_square, to_square))
+		await(board.direct_take(self))
+
+	func convert_for_board(board:ChessBoard):
+		var new_take = Take.new(piece, from_square, to_square, [], [])
+		new_take.from_square = board.get_square(from_square.coordinates)
+		new_take.to_square = board.get_square(to_square.coordinates)
+		new_take.traversed_squares.clear()
+		for square in traversed_squares:
+			new_take.traversed_squares.append(board.get_square(square.coordinates))
+		new_take.targets.clear()
+		for square in targets:
+			new_take.targets.append(board.get_square(square.coordinates))
+		return new_take
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_take(self))
@@ -84,7 +100,19 @@ class Move:
 		self.traversed_squares = _traversed_squares
 
 	func apply_to_board(board:ChessBoard):
-		await(board.move(from_square, to_square))
+		await(board.direct_move(self))
+
+	func convert_for_board(board:ChessBoard):
+		var new_move = Move.new(piece, from_square, to_square, [], [])
+		new_move.from_square = board.get_square(from_square.coordinates)
+		new_move.to_square = board.get_square(to_square.coordinates)
+		new_move.traversed_squares.clear()
+		for square in traversed_squares:
+			new_move.traversed_squares.append(board.get_square(square.coordinates))
+		new_move.incidental.clear()
+		for move in incidental:
+			new_move.incidental.append(move.convert_for_board(board))
+		return new_move
 
 	func copy_on_board(board:ChessBoard):
 		return await(board.get_new_board_state_move(self))
@@ -97,6 +125,8 @@ class PieceColor:
 	static var white = PieceColor.new("White", Color.WHITE, Vector2(0, 1))
 	static var black = PieceColor.new("Black", Color(0.13,0.14,0.18), Vector2(0, -1))
 
+	static var colors = [white, black]
+
 	func _init(_name, _color, _move_direction):
 		name = _name
 		color = _color
@@ -105,7 +135,14 @@ class PieceColor:
 	func get_perpendicular_direction():
 		return Vector2(move_direction.y, move_direction.x)
 
+	func on_deserialize():
+		for piece_color in colors:
+			if piece_color.name == name:
+				return piece_color
+		return self
 
+
+var id : int
 var name : String
 var color : PieceColor
 var point_value : float
@@ -114,6 +151,7 @@ var take_patterns:Array[PieceMovement.TakePattern]
 var modifiers:Array[PieceModifier]
 
 func _init(_name, _color:PieceColor, _point_value:float, _move_patterns:Array[PieceMovement.MovePattern], _take_patterns:Array[PieceMovement.TakePattern], _modifiers:Array[PieceModifier] = []):
+	id = self.get_instance_id()
 	name = _name
 	color = _color
 	point_value = _point_value

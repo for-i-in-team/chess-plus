@@ -7,11 +7,11 @@ class Direction:
 	static var ORTHOGONAL : Array[Vector2] = [Vector2(0,1), Vector2(-1,0), Vector2(0,-1), Vector2(1,0)]
 
 class Pattern:
-	var directions : Array[Vector2]
+	var directions : Array
 	var distance:int
 	var jumps_pieces:bool
 
-	func _init(_directions:Array[Vector2], _distance:int = -1, _jumps_pieces:bool = false):
+	func _init(_directions:Array, _distance:int = -1, _jumps_pieces:bool = false):
 		directions = _directions
 		distance = _distance
 		jumps_pieces = _jumps_pieces
