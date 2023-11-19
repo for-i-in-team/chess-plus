@@ -47,7 +47,6 @@ func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_SPACE:
-			SteamSession.current_lobby._send_p2p_packet({"test": "test"}, 0)
 			if lobby == null:
 				lobby = await(ChessLobby.start_lobby(self))
 			if len(lobby.player_list) > 0:
