@@ -26,17 +26,8 @@ func _init(view : ChessBoardView):
 	SteamSession.current_lobby.message_received.connect(handle_message)
 
 func handle_message(packet : SteamInterface.SteamPacket):
-	if packet.data['message'] == 'board':
-		board_view.set_board(Utils.recursive_from_dict(packet.data['board']))
-		board=board_view.board
-		bind_board_events()
-	if packet.data['message'] == 'turn_taken':
-		var turn = Utils.recursive_from_dict(packet.data['turn_option']).convert_for_board(board_view.board)
-		received_turns.append(turn)
-		turn.apply_to_board(board_view.board)
-	if packet.data['message'] == 'set_color':
-		board_view.input.color = Utils.recursive_from_dict(packet.data['color'])
-	
+	var event = Utils.recursive_from_dict(packet.data)
+	event.receive(self)
 
 func _on_player_joined(member:SteamInterface.SteamLobbyMember):
 	# Create a new player object for the new member
@@ -61,11 +52,11 @@ func start_game(_board : ChessBoard):
 	board = _board
 	board_view.set_board(board)
 	# Accepts a board, which is sent to all players
-	SteamSession.current_lobby.send_board(board)
+	BoardEvent.new(board).send(0)
 
 	# Let everyone know what color they are
 	for p in player_list:
-		SteamSession.current_lobby.set_color(p.color, p.id)
+		ColorEvent.new(p.color).send(p.id)
 
 	# Binds board events to communicate moves to other players
 	bind_board_events()
@@ -76,7 +67,7 @@ func bind_board_events():
 
 func _on_turn_taken(option: ChessPiece.TurnOption):
 	if not option in received_turns:
-		SteamSession.current_lobby.send_turn(option)
+		TurnEvent.new(option).send(0)
 
 
 class ChessPlayer:
@@ -87,3 +78,47 @@ class ChessPlayer:
 	func _init(_id:int, _name:String, _color:ChessPiece.PieceColor):
 		super(_id, _name)
 		color = _color
+
+class ChessLobbyEvent:
+	func send(target:int):
+		SteamSession.current_lobby._send_p2p_packet(Utils.recursive_to_dict(self), target)
+
+	func receive(_lobby:ChessLobby):
+		pass
+
+class BoardEvent:
+	extends ChessLobbyEvent
+
+	var board : ChessBoard
+
+	func _init(_board:ChessBoard):
+		board = _board
+
+	func receive(lobby:ChessLobby):
+		lobby.board_view.set_board(board)
+		lobby.board=lobby.board_view.board
+		lobby.bind_board_events()
+
+class TurnEvent:
+	extends ChessLobbyEvent
+
+	var turn_option : ChessPiece.TurnOption
+
+	func _init(_turn_option:ChessPiece.TurnOption):
+		turn_option = _turn_option
+
+	func receive(lobby:ChessLobby):
+		var turn = turn_option.convert_for_board(lobby.board_view.board)
+		lobby.received_turns.append(turn)
+		turn.apply_to_board(lobby.board_view.board)
+
+class ColorEvent:
+	extends ChessLobbyEvent
+
+	var color : ChessPiece.PieceColor
+
+	func _init(_color:ChessPiece.PieceColor):
+		color = _color
+
+	func receive(lobby:ChessLobby):
+		lobby.board_view.input.color = color

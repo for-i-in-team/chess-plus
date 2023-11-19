@@ -85,15 +85,6 @@ class Lobby:
 		Steam.persona_state_change.connect(_on_persona_change)
 		Steam.p2p_session_request.connect(_on_p2p_session_request)
 		Steam.p2p_session_connect_fail.connect(_on_p2p_session_connect_fail)
-	
-	func send_board(_board: ChessBoard):
-		_send_p2p_packet({"message":"board", "board": Utils.recursive_to_dict(_board)}, 0)
-
-	func send_turn(turn_option: ChessPiece.TurnOption):
-		_send_p2p_packet({"message":"turn_taken", "turn_option": Utils.recursive_to_dict(turn_option)}, 0)
-
-	func set_color(color: ChessPiece.PieceColor, id : int):
-		_send_p2p_packet({"message":"set_color", "color": Utils.recursive_to_dict(color)}, id)
 
 	func update_lobby_members():
 		var current_members : Array[int] = []
@@ -184,8 +175,8 @@ class Lobby:
 				_send_p2p_packet({"message":"handshake_ack", "from":Steam.getSteamID()}, p.sender_id)
 			elif p.data['message'] == 'handshake_ack':
 				p2p_initialized = true
-			elif p.sender_id != 0:
-				message_received.emit(p)
+		elif p.sender_id != 0:
+			message_received.emit(p)
 
 		if not p2p_initialized and len(members) > 0 and created:
 			_send_p2p_packet({"message":"handshake_request", "from":Steam.getSteamID()}, 0)
