@@ -2,7 +2,6 @@ class_name ChessBoardView
 extends Node2D
 
 @export var chess_square_node : PackedScene
-@export var board_size : Vector2 = Vector2(8,8)
 @export var input : ChessInput
 var lobby : ChessLobby
 var board :ChessBoard
@@ -51,3 +50,22 @@ func _unhandled_input(event):
 				lobby = await(ChessLobby.start_lobby(self))
 			if len(lobby.player_list) > 0:
 				lobby.start_game(BomberMan.get_bomberman_board())
+
+
+class Scene:
+	extends SceneManager.Scene
+
+	var board : ChessBoard
+
+	func _init(_board:ChessBoard):
+		board = _board
+
+	func get_packed_scene() -> PackedScene:
+		return preload("res://scenes/screens/chess_board.tscn")
+
+	func is_scene_ready(tree:SceneTree) -> bool:
+		return tree.get_root().get_node_or_null("/root/ChessBoard") != null
+
+	func on_scene_loaded(tree:SceneTree):
+		var board_view:ChessBoardView = tree.get_root().get_node_or_null("/root/ChessBoard")
+		board_view.set_board(board)
