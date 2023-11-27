@@ -25,8 +25,8 @@ class Scene:
 		assert(false, "get_packed_scene is not implemented")
 		return null
 
-	func is_scene_ready(tree:SceneTree) -> bool:
+	func is_scene_ready(_tree:SceneTree) -> bool:
 		return true
 
-	func on_scene_loaded(tree:SceneTree):
+	func on_scene_loaded(_tree:SceneTree):
 		pass

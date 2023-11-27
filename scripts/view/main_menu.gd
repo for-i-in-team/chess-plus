@@ -1,13 +1,8 @@
 class_name MainMenu
 extends Node2D
 
-@export var game_scene : PackedScene
-
-func start_game():
-	ChessBoardView.Scene.new(TraditionalPieces.get_traditional_board_setup()).load_scene()
-
 func play_puzzle():
-	pass
+	LevelSelectMenu.Scene.new().load_scene()
 
 func play_multiplayer():
 	pass
