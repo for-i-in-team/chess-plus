@@ -322,6 +322,12 @@ class Square:
 	func _to_string():
 		return "Square: (%f,%f) %s"%[coordinates.x, coordinates.y, piece]
 
+	func is_traversible(_board:ChessBoard, _piece:ChessPiece):
+		return true
+
+	func can_hold(_board:ChessBoard, _piece:ChessPiece):
+		return true
+
 	func equals(other:Square):
 		var piece_identical:bool = false
 		if piece == null:
