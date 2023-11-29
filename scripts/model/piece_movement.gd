@@ -59,9 +59,9 @@ class MovePattern:
 					# Otherwise, if this isn't a take, and the square can hold us, add the move
 					elif len(piece.get_take_for_square(board, current_square, square, traversed).targets) == 0 and square.can_hold(board, piece):
 						moves.append(ChessPiece.Move.new(piece, current_square, square, traversed.duplicate()))
-						# If the square is not traversible, stop searching now
-						if not square.is_traversible(board, piece):
-							break
+					# If the square is not traversible, stop searching now
+					if not square.is_traversible(board, piece):
+						break
 					traversed.append(square)
 			else:
 				var next_square = board.get_square(current_square.coordinates + direction)
@@ -72,9 +72,9 @@ class MovePattern:
 					# Otherwise, if this isn't a take, and the square can hold us, add the move
 					elif len(piece.get_take_for_square(board, current_square, next_square, traversed).targets) == 0 and next_square.can_hold(board, piece):
 						moves.append(ChessPiece.Move.new(piece, current_square, next_square, traversed.duplicate()))
-						# If the square is not traversible, stop searching now
-						if not next_square.is_traversible(board, piece):
-							break
+					# If the square is not traversible, stop searching now
+					if not next_square.is_traversible(board, piece):
+						break
 					traversed.append(next_square)
 					next_square = board.get_square(next_square.coordinates + direction)
 
@@ -99,8 +99,8 @@ class TakePattern:
 						var _take:ChessPiece.Take = piece.get_take_for_square(board, current_square, square, traversed.duplicate())
 						if len(_take.targets)>0 and square.can_hold(board, piece):
 							takes.append(_take)
-							if is_blocked(square) or not square.is_traversible(board, piece):
-								break
+						if is_blocked(square) or not square.is_traversible(board, piece):
+							break
 					traversed.append(square)
 			else:
 				var next_square = board.get_square(current_square.coordinates + direction)
@@ -109,8 +109,8 @@ class TakePattern:
 					traversed.append(next_square)
 					if len(_take.targets)>0 and next_square.can_hold(board, piece):
 						takes.append(_take)
-						if is_blocked(next_square) or not next_square.is_traversible(board, piece):
-							break
+					if is_blocked(next_square) or not next_square.is_traversible(board, piece):
+						break
 					next_square = board.get_square(next_square.coordinates + direction)
 
 		return takes
