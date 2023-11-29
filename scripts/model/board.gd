@@ -315,7 +315,7 @@ class Square:
 	var coordinates : Vector2
 	var piece : ChessPiece
 
-	func _init( square_color:ChessBoard.SquareColor, coord : Vector2):
+	func _init(square_color:ChessBoard.SquareColor, coord : Vector2):
 		color  = square_color
 		coordinates = coord
 
@@ -336,6 +336,15 @@ class Square:
 			piece_identical = piece.equals(other.piece)
 		return get_script() == other.get_script() and coordinates == other.coordinates and piece_identical
 
+class NonTraversibleSquare:
+	extends Square
+
+	func is_traversible(_board:ChessBoard, _piece:ChessPiece):
+		return false
+
+	func can_hold(_board:ChessBoard, _piece:ChessPiece):
+		return false
+
 
 class SquareColor:
 	var color: Color
@@ -351,4 +360,9 @@ class White:
 	extends SquareColor
 	func _init():
 		self.color = Color.WHITE
+
+class NullColor:
+	extends SquareColor
+	func _init():
+		self.color = Color(0,0,0,0)
 	
