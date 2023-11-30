@@ -11,6 +11,6 @@ first_puzzle_pos = Vector2(150, 100)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.341176, 0.423529, 1, 1)
-position = Vector2(576.597, 324.567)
-scale = Vector2(-1153.19, -649.134)
+position = Vector2(794.472, 435.482)
+scale = Vector2(-2242.13, -1342.1)
 texture = ExtResource("2_tadyu")

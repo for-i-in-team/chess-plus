@@ -19,7 +19,7 @@ func init(_board: ChessBoardView, chess_square:ChessBoard.Square):
 	board = _board
 	square = chess_square
 	$sprite.modulate = square.color.color
-	position =  Vector2(square.coordinates.x, board.board.size.y-1 -square.coordinates.y) * $sprite.texture.get_width()*$sprite.scale
+	position =  Vector2(square.coordinates.x - board.board.size.x/2, board.board.size.y -0.5 - board.board.size.y/2 -square.coordinates.y) * $sprite.texture.get_width()*$sprite.scale
 	if square.piece != null:
 		piece_view = piece_scene.instantiate()
 		piece_view.init(board, square.piece)
