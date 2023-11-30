@@ -19,6 +19,7 @@ func spawn_puzzle_display(pos:Vector2, puzzle:Puzzle):
 func _ready():
 	puzzles.append(TraditionalPuzzle.new())
 	puzzles.append(BombermanPuzzle.new())
+	puzzles.append(TheologicalDividePuzzle.new())
 
 	var pos = first_puzzle_pos
 	for puzzle in puzzles:
@@ -50,6 +51,15 @@ class BombermanPuzzle:
 
 	func get_board() -> ChessBoard:
 		return BomberMan.get_bomberman_board()
+
+class TheologicalDividePuzzle:
+	extends Puzzle
+
+	func get_name() -> String:
+		return "Theological Divide"
+
+	func get_board() -> ChessBoard:
+		return TheologicalDivide.get_board()
 
 class Scene:
 	extends SceneManager.Scene
