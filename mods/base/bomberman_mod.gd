@@ -59,3 +59,12 @@ static func get_bomberman_board():
 	_board.add_effect(GameEffect.LoseOnCheckableTaken.new())
 
 	return _board
+
+class Puzzle:
+	extends ChessBoard.Puzzle
+
+	func get_name() -> String:
+		return "Bomberman"
+
+	func get_board() -> ChessBoard:
+		return BomberMan.get_bomberman_board()

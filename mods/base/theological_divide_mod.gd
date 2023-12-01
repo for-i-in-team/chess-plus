@@ -57,3 +57,13 @@ static func get_board():
 
 	
 	return board
+
+
+class Puzzle:
+	extends ChessBoard.Puzzle
+
+	func get_name() -> String:
+		return "Theological Divide"
+
+	func get_board() -> ChessBoard:
+		return TheologicalDivide.get_board()
