@@ -366,3 +366,10 @@ class NullColor:
 	func _init():
 		self.color = Color(0,0,0,0)
 	
+class Puzzle:
+	
+	func get_name() -> String:
+		return ""
+
+	func get_board() -> ChessBoard:
+		return null
