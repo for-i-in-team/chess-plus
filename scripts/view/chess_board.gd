@@ -9,9 +9,7 @@ var bot : ChessAI
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	board = BomberMan.get_bomberman_board()
 
-	set_board(board)
 
 	#bot = ChessAI.new(ChessPiece.PieceColor.black, board)
 
