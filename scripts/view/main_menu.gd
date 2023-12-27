@@ -8,7 +8,7 @@ func play_campaign():
 	pass
 
 func play_multiplayer():
-	pass
+	VersusLobby.Scene.new().load_scene()
 
 func level_creator():
 	pass
