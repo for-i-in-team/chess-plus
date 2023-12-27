@@ -3,17 +3,8 @@ extends Node2D
 
 @export var chess_square_node : PackedScene
 @export var input : ChessInput
-var lobby : ChessLobby
 var board :ChessBoard
 var bot : ChessAI
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-
-
-	#bot = ChessAI.new(ChessPiece.PieceColor.black, board)
-
-	SteamSession.lobby_joined.connect(func(): lobby=await(ChessLobby.new(self)))
 
 func set_board(_board : ChessBoard):
 	board = _board
@@ -43,15 +34,6 @@ func get_square_view(square:ChessBoard.Square) -> ChessSquareView:
 			if square_view.square.coordinates == square.coordinates:
 				return square_view
 	return null
-
-func _unhandled_input(event):
-	if event is InputEventKey:
-		if event.pressed and event.keycode == KEY_SPACE:
-			if lobby == null:
-				lobby = await(ChessLobby.start_lobby(self))
-			if len(lobby.player_list) > 0:
-				lobby.start_game(BomberMan.get_bomberman_board())
-
 
 class Scene:
 	extends SceneManager.Scene
