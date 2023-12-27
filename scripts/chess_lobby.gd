@@ -1,6 +1,5 @@
 class_name ChessLobby
 
-var board_view : ChessBoardView
 var player_list : Array = []
 var board : ChessBoard
 var received_turns : Array = []
@@ -9,13 +8,11 @@ signal player_joined(player:ChessPlayer)
 signal player_left(player:ChessPlayer)
 signal game_started(board:ChessBoard)
 
-static func start_lobby(view : ChessBoardView):
+static func start_lobby():
 	await(SteamSession.create_lobby())
-	return ChessLobby.new(view)
+	return ChessLobby.new()
 
-func _init(view : ChessBoardView):
-	board_view = view
-
+func _init():
 	for p in SteamSession.current_lobby.members:
 		player_list.append(ChessPlayer.new(p.id, p.name, ChessPiece.PieceColor.black))
 	player_list.append(ChessPlayer.new(Steam.getSteamID(), Steam.getFriendPersonaName(Steam.getSteamID()), ChessPiece.PieceColor.white))
@@ -49,8 +46,7 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 			break
 
 func start_game(_board : ChessBoard):
-	board = _board
-	board_view.set_board(board)
+	ChessBoardView.Scene.new(_board, []).load_scene()
 	# Accepts a board, which is sent to all players
 	BoardEvent.new(board).send(0)
 
@@ -95,8 +91,8 @@ class BoardEvent:
 		board = _board
 
 	func receive(lobby:ChessLobby):
-		lobby.board_view.set_board(board)
-		lobby.board=lobby.board_view.board
+		ChessBoardView.Scene.new(board, []).load_scene()
+		lobby.board=board
 		lobby.bind_board_events()
 
 class TurnEvent:
@@ -108,9 +104,9 @@ class TurnEvent:
 		turn_option = _turn_option
 
 	func receive(lobby:ChessLobby):
-		var turn = turn_option.convert_for_board(lobby.board_view.board)
+		var turn = turn_option.convert_for_board(lobby.board)
 		lobby.received_turns.append(turn)
-		turn.apply_to_board(lobby.board_view.board)
+		turn.apply_to_board(lobby.board)
 
 class ColorEvent:
 	extends ChessLobbyEvent
@@ -121,4 +117,4 @@ class ColorEvent:
 		color = _color
 
 	func receive(lobby:ChessLobby):
-		lobby.board_view.input.color = color
+		lobby.input.color = color
