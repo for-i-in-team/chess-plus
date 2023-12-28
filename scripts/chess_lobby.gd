@@ -7,10 +7,18 @@ var received_turns : Array = []
 signal player_joined(player:ChessPlayer)
 signal player_left(player:ChessPlayer)
 signal game_started(board:ChessBoard)
+signal player_data_updated()
 
 static func start_lobby():
 	await(SteamSession.create_lobby())
 	return ChessLobby.new()
+
+func update_player_color(id:int, color:ChessPiece.PieceColor):
+	for player in player_list:
+		if player.id == id:
+			player.color = color
+			player_data_updated.emit()
+			break
 
 func _init():
 	for p in SteamSession.current_lobby.members:
@@ -64,6 +72,9 @@ func bind_board_events():
 func _on_turn_taken(option: ChessPiece.TurnOption):
 	if not option in received_turns:
 		TurnEvent.new(option).send(0)
+
+func kick(player:int):
+	print("Kicking player " + str(player))
 
 
 class ChessPlayer:

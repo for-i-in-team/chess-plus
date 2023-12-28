@@ -15,6 +15,17 @@ func _ready():
 	board_view.set_board(lobby.board)
 	board_view.position = Vector2(board_view.position.x *1.5, board_view.position.y)
 	add_child(board_view)
+	setup_player_list()
+	
+	#lobby.player_data_updated.connect(setup_player_list)
+
+func setup_player_list():
+	for child in $PlayerList/List.get_children():
+		child.queue_free()
+	for player in lobby.player_list:
+		var player_list_item = packed_player_list_item.instantiate()
+		player_list_item.set_player(lobby, player)
+		$PlayerList/List.add_child(player_list_item)
 
 func set_lobby(_lobby:ChessLobby):
 	self.lobby = _lobby
