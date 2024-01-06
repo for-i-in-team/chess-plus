@@ -21,33 +21,36 @@ func init(_board:ChessBoardView, chess_piece:ChessPiece):
 	$sprite.texture = get_image(chess_piece)
 	$sprite.modulate = chess_piece.color.color
 	board=  _board
-	board.board.events.piece_moved.connect_sig(func(_move:ChessPiece.Move):
-		if _move.piece.id == piece_id:
-			await(move(_move.from_square, _move.to_square))
-		for incidental in _move.incidental:
-			if incidental.piece.id == piece_id:
-				await(move(incidental.from_square, incidental.to_square))
-	)
+	board.board.events.piece_moved.connect_sig(on_piece_move)
 	
-	board.board.events.piece_taken.connect_sig(func(take:ChessPiece.Take):
-		if take.piece.id == piece_id:
-			await(move(take.from_square, take.to_square))
-			return
-		var square_view : ChessSquareView = get_parent()
+	board.board.events.piece_taken.connect_sig(on_piece_taken)
 
-		for t in take.targets:
-			if not taken and square_view.square.coordinates == t.coordinates:
-				taken = true
-				await(take_complete)
-				break
-	)
+	board.board.events.piece_change.connect_sig(on_piece_change)
 
-	board.board.events.piece_change.connect_sig(func(old_piece:ChessPiece, new_piece:ChessPiece):
-		if old_piece.id == piece_id:
-			piece_id = new_piece.id
-			$sprite.texture = get_image(new_piece)
-			$sprite.modulate = new_piece.color.color
-	)
+func on_piece_move(_move:ChessPiece.Move):
+	if _move.piece.id == piece_id:
+		await(move(_move.from_square, _move.to_square))
+	for incidental in _move.incidental:
+		if incidental.piece.id == piece_id:
+			await(move(incidental.from_square, incidental.to_square))
+
+func on_piece_taken(take: ChessPiece.Take):
+	if take.piece.id == piece_id:
+		await(move(take.from_square, take.to_square))
+		return
+	var square_view : ChessSquareView = get_parent()
+
+	for t in take.targets:
+		if not taken and square_view.square.coordinates == t.coordinates:
+			taken = true
+			await(take_complete)
+			break
+
+func on_piece_change(old_piece:ChessPiece, new_piece:ChessPiece):
+	if old_piece.id == piece_id:
+		piece_id = new_piece.id
+		$sprite.texture = get_image(new_piece)
+		$sprite.modulate = new_piece.color.color
 
 func move(from_square:ChessBoard.Square, to_square:ChessBoard.Square):
 	if from_square != to_square:
