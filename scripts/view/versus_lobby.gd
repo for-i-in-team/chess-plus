@@ -19,6 +19,9 @@ func _ready():
 	
 	#lobby.player_data_updated.connect(setup_player_list)
 
+func start_game():
+	lobby.start_game(lobby.board)
+
 func setup_player_list():
 	for child in $PlayerList/List.get_children():
 		child.queue_free()
