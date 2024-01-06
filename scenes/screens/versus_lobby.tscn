@@ -46,3 +46,5 @@ offset_top = 957.0
 offset_right = 1553.0
 offset_bottom = 1036.0
 text = "Board Settings"
+
+[connection signal="pressed" from="Button2" to="." method="start_game"]
