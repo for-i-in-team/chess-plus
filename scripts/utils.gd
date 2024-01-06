@@ -13,6 +13,10 @@ class AsyncSignal:
 			await(fn.callv(args))
 			instance.complete.emit()
 		_base.connect(inner_fn)
+		return inner_fn
+
+	func disconnect_sig(fn:Callable):
+		_base.disconnect(fn)
 
 	func emit(args:Array):
 		var instance : _AsyncSignalInstance = _AsyncSignalInstance.new()
