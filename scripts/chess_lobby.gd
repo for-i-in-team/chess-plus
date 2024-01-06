@@ -54,7 +54,8 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 			break
 
 func start_game(_board : ChessBoard):
-	ChessBoardView.Scene.new(_board, []).load_scene()
+	board = _board
+	ChessBoardView.Scene.new(board, []).load_scene()
 	# Accepts a board, which is sent to all players
 	BoardEvent.new(board).send(0)
 
