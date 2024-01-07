@@ -73,9 +73,9 @@ func get_board_value_recursive(_board : ChessBoard, _color : ChessPiece.PieceCol
 		if not _color in _board.colors:
 			print("%sReturning board value of -99999 for %s" % [indent, _board.current_turn.name])
 			return -99999
-		var best_option : OptionValue = await(get_best_option(_board, _board.current_turn, depth))
+		var _best_option : OptionValue = await(get_best_option(_board, _board.current_turn, depth))
 
-		best_option.option.apply_to_board(_board)
+		_best_option.option.apply_to_board(_board)
 	
 	depth += 1
 	indent += "  "

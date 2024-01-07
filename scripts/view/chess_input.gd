@@ -17,7 +17,7 @@ func init(chess_board: ChessBoardView, _color:ChessPiece.PieceColor, _current_tu
 	current_turn = _current_turn
 	set_square(chess_square)
 
-	board.board.events.turn_started.connect_sig(func(_color):set_turn(_color))
+	board.board.events.turn_started.connect_sig(func(turn_color):set_turn(turn_color))
 
 func set_turn(_color:ChessPiece.PieceColor):
 	current_turn = _color

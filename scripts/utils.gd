@@ -20,8 +20,8 @@ class AsyncSignal:
 
 	func emit(args:Array):
 		var instance : _AsyncSignalInstance = _AsyncSignalInstance.new()
-		await(instance.emit(args, len(_base.get_connections()), func(instance:_AsyncSignalInstance, args:Array):
-			_base.emit(instance, args)
+		await(instance.emit(args, len(_base.get_connections()), func(_instance:_AsyncSignalInstance, _args:Array):
+			_base.emit(_instance, _args)
 		))
 
 
