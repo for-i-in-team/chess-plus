@@ -4,7 +4,7 @@ extends Node2D
 @export var chess_square_node : PackedScene
 @export var input : ChessInput
 var board :ChessBoard
-var bot : ChessAI
+var bots : Array
 
 func set_board(_board : ChessBoard):
 	board = _board
@@ -24,7 +24,7 @@ func set_board(_board : ChessBoard):
 	board.events.stalemated.connect_sig(func(color:ChessPiece.PieceColor):print("Color Tied: " + color.name))
 
 func add_ai(color:ChessPiece.PieceColor):
-	ChessAI.new(color, board)
+	bots.append(ChessAI.new(color, board))
 	
 
 func get_square_view(square:ChessBoard.Square) -> ChessSquareView:

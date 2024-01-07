@@ -45,6 +45,7 @@ func _on_player_joined(member:SteamInterface.SteamLobbyMember):
 		color = ChessPiece.PieceColor.white
 	var player = ChessPlayer.new(member.id, member.name, color)
 	player_list.append(player)
+	player_joined.emit(player)
 
 func _on_player_left(member:SteamInterface.SteamLobbyMember):
 	# Find the player object for the member that left
@@ -55,7 +56,11 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 
 func start_game(_board : ChessBoard):
 	board = _board
-	ChessBoardView.Scene.new(board, []).load_scene()
+	var ai_colors : Array = []
+	for p in player_list:
+		if p is ChessBot:
+			ai_colors.append(p.color)
+	ChessBoardView.Scene.new(board, ai_colors).load_scene()
 	# Accepts a board, which is sent to all players
 	BoardEvent.new(board).send(0)
 
@@ -77,6 +82,11 @@ func _on_turn_taken(option: ChessPiece.TurnOption):
 func kick(player:int):
 	print("Kicking player " + str(player))
 
+func add_bot():
+	var color : ChessPiece.PieceColor = ChessPiece.PieceColor.black if len(player_list) > 0 and player_list[-1].color == ChessPiece.PieceColor.white else  ChessPiece.PieceColor.white
+	player_list.append(ChessBot.new(color))
+	player_joined.emit(player_list[-1])
+
 
 class ChessPlayer:
 	extends SteamInterface.SteamLobbyMember
@@ -86,6 +96,12 @@ class ChessPlayer:
 	func _init(_id:int, _name:String, _color:ChessPiece.PieceColor):
 		super(_id, _name)
 		color = _color
+
+class ChessBot:
+	extends ChessPlayer
+
+	func _init(_color:ChessPiece.PieceColor):
+		super(-1, "Bot", _color)
 
 class ChessLobbyEvent:
 	func send(target:int):

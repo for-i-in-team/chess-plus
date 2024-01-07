@@ -17,7 +17,9 @@ func _ready():
 	add_child(board_view)
 	setup_player_list()
 	
-	#lobby.player_data_updated.connect(setup_player_list)
+	lobby.player_joined.connect(func(_player): setup_player_list())
+	lobby.player_left.connect(func(_player): setup_player_list())
+	lobby.player_data_updated.connect(func(): setup_player_list())
 
 func start_game():
 	lobby.start_game(lobby.board)
@@ -29,6 +31,12 @@ func setup_player_list():
 		var player_list_item = packed_player_list_item.instantiate()
 		player_list_item.set_player(lobby, player)
 		$PlayerList/List.add_child(player_list_item)
+	
+	var button : Button = Button.new()
+	button.set_text("Add Bot")
+	button.pressed.connect(lobby.add_bot)
+	$PlayerList/List.add_child(button)
+	
 
 func set_lobby(_lobby:ChessLobby):
 	self.lobby = _lobby

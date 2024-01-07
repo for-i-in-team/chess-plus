@@ -11,12 +11,13 @@ func _init(_color : ChessPiece.PieceColor, _board : ChessBoard):
 	analysis_thread = Thread.new()
 
 
-	board.events.turn_started.connect_sig(func (_color : ChessPiece.PieceColor):
-		if _color == color:
-			if analysis_thread.is_started():
-				analysis_thread.wait_to_finish()
-			analysis_thread.start(play_turn)
-	)
+	board.events.turn_started.connect_sig(on_turn_started)
+
+func on_turn_started(_color : ChessPiece.PieceColor):
+	if _color == color:
+		if analysis_thread.is_started():
+			analysis_thread.wait_to_finish()
+		analysis_thread.start(play_turn)
 
 func play_turn():
 	var start_time = Time.get_ticks_usec()
