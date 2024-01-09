@@ -17,6 +17,7 @@ func _ready():
 	Steam.lobby_match_list.connect(_on_lobby_match_list)
 	Steam.lobby_joined.connect(_on_lobby_joined)
 	Steam.join_requested.connect(_on_lobby_join_requested)
+	lobby_joined.connect(func(): VersusLobby.Scene.new(ChessLobby.new()).load_scene())
 
 	list_lobbies()
 
@@ -39,25 +40,23 @@ func create_lobby():
 func _on_lobby_match_list(lobbies:Array):
 	print("Lobby Match List: " + str(lobbies))
 
-	if len(lobbies) > 0:
-		Steam.joinLobby(lobbies[0])
-	else:
-		create_lobby()
-
 func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response: int):
 	print("Lobby Joined: " + str(lobby_id) + " " + str(_permissions) + " " + str(_locked) + " " + str(response))
 	if current_lobby == null or current_lobby._lobby_id != lobby_id:
 		current_lobby = Lobby.new(lobby_id)
 
-	current_lobby.update_lobby_members()
-	for m in current_lobby.members:
-		print(str(m.id) + " " + m.name)
+		current_lobby.update_lobby_members()
+		for m in current_lobby.members:
+			print(str(m.id) + " " + m.name)
 
-	lobby_joined.emit()
+		lobby_joined.emit()
 	
 func _on_lobby_join_requested(lobby_id: int, friendID: int) -> void:
 	print("Lobby Join Requested: " + str(lobby_id) + " " + str(friendID))
 	Steam.joinLobby(lobby_id)
+
+func wait(seconds : float):
+	await(get_tree().create_timer(seconds).timeout)
 
 
 class Lobby:
@@ -66,6 +65,9 @@ class Lobby:
 	var members :Array = []
 	var hosting : bool = false
 	var p2p_initialized : bool = false
+	var last_handshake_attempt : int
+
+
 
 	signal member_joined(member: SteamLobbyMember)
 	signal member_left(member: SteamLobbyMember)
@@ -146,6 +148,8 @@ class Lobby:
 		print("P2P Session Connect Fail: " + str(steam_id) + " " + str(session_error))
 
 	func _send_p2p_packet(data: Dictionary, target: int) -> void:
+		while not p2p_initialized:
+			await(SteamSession.wait(0.1))
 		var buffer: PackedByteArray = PackedByteArray()
 		buffer.append_array(var_to_bytes(data))
 		
@@ -154,6 +158,19 @@ class Lobby:
 				Steam.sendP2PPacket(member.id, buffer, Steam.P2P_SEND_RELIABLE, 0)
 		else:
 			Steam.sendP2PPacket(target, buffer, Steam.P2P_SEND_RELIABLE, 0)
+			
+	func _send_handshake():
+		var buffer: PackedByteArray = PackedByteArray()
+		buffer.append_array(var_to_bytes({"message":"handshake_request", "from":Steam.getSteamID()}))
+		for member in members:
+				Steam.sendP2PPacket(member.id, buffer, Steam.P2P_SEND_RELIABLE, 0)
+		last_handshake_attempt = Time.get_ticks_msec()
+				
+	func _confirm_handshake():
+		var buffer: PackedByteArray = PackedByteArray()
+		buffer.append_array(var_to_bytes({"message":"handshake_ack", "from":Steam.getSteamID()}))
+		for member in members:
+				Steam.sendP2PPacket(member.id, buffer, Steam.P2P_SEND_RELIABLE, 0)
 
 	func _read_p2p_packet() -> SteamPacket:
 		var buffer: PackedByteArray = PackedByteArray()
@@ -172,14 +189,17 @@ class Lobby:
 		var p = _read_p2p_packet()
 		if 'message' in p.data:
 			if p.data['message'] == 'handshake_request':
-				_send_p2p_packet({"message":"handshake_ack", "from":Steam.getSteamID()}, p.sender_id)
+				_confirm_handshake()
+				print("Handshake Request from " + str(p.sender_id) + " received, acknowledgement sent")
 			elif p.data['message'] == 'handshake_ack':
 				p2p_initialized = true
+				print("Handshake Acknowledgement from " + str(p.sender_id) + " received, p2p initialized")
 		elif p.sender_id != 0:
 			message_received.emit(p)
 
-		if not p2p_initialized and len(members) > 0 and created:
-			_send_p2p_packet({"message":"handshake_request", "from":Steam.getSteamID()}, 0)
+		if not p2p_initialized and len(members) > 0 and created and Time.get_ticks_msec() - last_handshake_attempt > 10000:
+			print("P2P not initialized, sending handshake request")
+			_send_handshake()
 
 class SteamLobbyMember:
 	var id : int
