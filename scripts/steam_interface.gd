@@ -4,6 +4,7 @@ extends Node
 var _INIT: Dictionary
 var STEAM_ENABLED: bool = false
 var current_lobby : Lobby = null
+var chess_lobby : ChessLobby = null
 
 signal lobby_joined()
 

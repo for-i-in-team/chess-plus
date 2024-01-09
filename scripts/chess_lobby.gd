@@ -21,6 +21,7 @@ func update_player_color(id:int, color:ChessPiece.PieceColor):
 			break
 
 func _init():
+	SteamSession.chess_lobby = self
 	for p in SteamSession.current_lobby.members:
 		player_list.append(ChessPlayer.new(p.id, p.name, ChessPiece.PieceColor.black))
 	player_list.append(ChessPlayer.new(Steam.getSteamID(), Steam.getFriendPersonaName(Steam.getSteamID()), ChessPiece.PieceColor.white))
