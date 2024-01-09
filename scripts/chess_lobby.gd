@@ -8,6 +8,7 @@ var isHost : bool = false
 signal player_joined(player:ChessPlayer)
 signal player_left(player:ChessPlayer)
 signal game_started(board:ChessBoard)
+signal board_changed(board:ChessBoard)
 signal player_data_updated()
 
 static func start_lobby():
@@ -49,6 +50,9 @@ func _on_player_joined(member:SteamInterface.SteamLobbyMember):
 	var player = ChessPlayer.new(member.id, member.name, color)
 	player_list.append(player)
 	player_joined.emit(player)
+	if isHost:
+		print("Sending " + str(player.id) + " lobby data event")
+		LobbyDataEvent.new(board, player_list).send(player.id)
 
 func _on_player_left(member:SteamInterface.SteamLobbyMember):
 	# Find the player object for the member that left
@@ -81,6 +85,16 @@ func load_game_scene():
 			ai_colors.append(p.color)
 	
 	ChessBoardView.Scene.new(board, ai_colors, player_color).load_scene()
+
+func set_board(_board : ChessBoard):
+	board = _board
+	bind_board_events()
+	board_changed.emit(board)
+
+func set_players(_player_list : Array):
+	player_list = _player_list
+	player_data_updated.emit()
+
 func bind_board_events():
 	board.events.piece_moved.connect_sig(_on_turn_taken)
 	board.events.piece_taken.connect_sig(_on_turn_taken)
@@ -129,9 +143,8 @@ class BoardEvent:
 		board = _board
 
 	func receive(lobby:ChessLobby):
-		ChessBoardView.Scene.new(board, []).load_scene()
-		lobby.board=board
-		lobby.bind_board_events()
+		lobby.set_board(board)
+		lobby.load_game_scene()
 
 class TurnEvent:
 	extends ChessLobbyEvent
@@ -155,4 +168,19 @@ class ColorEvent:
 		color = _color
 
 	func receive(lobby:ChessLobby):
-		lobby.input.color = color
+		print("Color Event Received " + color.name) # TODO Add color signal to make the board's input change color
+		#lobby.input.color = color
+
+class LobbyDataEvent:
+	extends ChessLobbyEvent
+
+	var board : ChessBoard
+	var player_list : Array = []
+
+	func _init(_board:ChessBoard, _player_list:Array):
+		board = _board
+		player_list = _player_list
+
+	func receive(lobby:ChessLobby):
+		lobby.set_board(board)
+		lobby.set_players(player_list)
