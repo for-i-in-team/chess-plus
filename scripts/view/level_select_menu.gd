@@ -7,7 +7,7 @@ extends Node2D
 var puzzles : Array[ChessBoard.Puzzle] = []
 
 func start_game(puzzle:ChessBoard.Puzzle):
-	ChessBoardView.Scene.new(puzzle.get_board(), [ChessPiece.PieceColor.black]).load_scene()
+	ChessBoardView.Scene.new(puzzle.get_board(), [ChessPiece.PieceColor.black], ChessPiece.PieceColor.white).load_scene()
 
 func spawn_puzzle_display(pos:Vector2, puzzle:ChessBoard.Puzzle):
 	var display = puzzle_display.instantiate()

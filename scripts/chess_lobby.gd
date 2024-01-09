@@ -56,11 +56,8 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 
 func start_game(_board : ChessBoard):
 	board = _board
-	var ai_colors : Array = []
-	for p in player_list:
-		if p is ChessBot:
-			ai_colors.append(p.color)
-	ChessBoardView.Scene.new(board, ai_colors).load_scene()
+	# TODO Only create the AIs on the host
+	load_game_scene()
 	# Accepts a board, which is sent to all players
 	BoardEvent.new(board).send(0)
 
@@ -71,6 +68,16 @@ func start_game(_board : ChessBoard):
 	# Binds board events to communicate moves to other players
 	bind_board_events()
 
+func load_game_scene():
+	var player_color
+	var ai_colors : Array = []
+	for p in player_list:
+		if p.id == Steam.getSteamID():
+			player_color = p.color
+		if p is ChessBot and isHost:
+			ai_colors.append(p.color)
+	
+	ChessBoardView.Scene.new(board, ai_colors, player_color).load_scene()
 func bind_board_events():
 	board.events.piece_moved.connect_sig(_on_turn_taken)
 	board.events.piece_taken.connect_sig(_on_turn_taken)

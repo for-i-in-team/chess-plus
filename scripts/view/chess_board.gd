@@ -39,11 +39,13 @@ class Scene:
 	extends SceneManager.Scene
 
 	var board : ChessBoard
+	var player_color : ChessPiece.PieceColor
 	var ai_colors : Array
 
-	func _init(_board:ChessBoard, _ai_colors : Array):
+	func _init(_board:ChessBoard, _ai_colors : Array, _player_color : ChessPiece.PieceColor):
 		board = _board
 		ai_colors = _ai_colors
+		player_color = _player_color
 
 	func get_packed_scene() -> PackedScene:
 		return preload("res://scenes/screens/chess_board.tscn")
@@ -56,3 +58,4 @@ class Scene:
 		board_view.set_board(board)
 		for color in ai_colors:
 			board_view.add_ai(color)
+		board_view.input.color = player_color
