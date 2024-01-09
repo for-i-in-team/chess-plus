@@ -1,13 +1,28 @@
-[gd_scene load_steps=5 format=3 uid="uid://7enu645ui8y"]
+[gd_scene load_steps=8 format=3 uid="uid://7enu645ui8y"]
 
 [ext_resource type="Script" path="res://scripts/view/versus_lobby.gd" id="1_25162"]
+[ext_resource type="Script" path="res://scripts/view/chess_board.gd" id="2_b8rw8"]
 [ext_resource type="Texture2D" uid="uid://b747vyu1rfuoo" path="res://resources/pixel.png" id="2_cwy43"]
-[ext_resource type="PackedScene" uid="uid://n2k2sw1h74gq" path="res://scenes/screens/chess_board.tscn" id="2_ilc74"]
 [ext_resource type="PackedScene" uid="uid://wbk7n65x81du" path="res://scenes/screens/player_list_item.tscn" id="3_5qgqv"]
+[ext_resource type="PackedScene" uid="uid://bdrskebuxdslv" path="res://scenes/chessboard/chess_square.tscn" id="3_jrpa2"]
+[ext_resource type="PackedScene" uid="uid://c3mc35jvektbg" path="res://scenes/chessboard/chess_input.tscn" id="4_qmi8j"]
+
+[sub_resource type="PackedScene" id="PackedScene_s6vvy"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"names": PackedStringArray("ChessBoard", "Node2D", "position", "scale", "script", "chess_square_node", "input", "input"),
+"node_count": 2,
+"node_paths": [NodePath(".")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 5, 2, 0, 3, 1, 4, 2, 5, 3, 1073741830, 4, 0, 1073741824, 0, 2147483647, 7, 5, 0, 0),
+"variants": [Vector2(960, 540), Vector2(0.75, 0.75), ExtResource("2_b8rw8"), ExtResource("3_jrpa2"), NodePath("input"), ExtResource("4_qmi8j")],
+"version": 3
+}
 
 [node name="versus_lobby" type="Node2D"]
 script = ExtResource("1_25162")
-packed_board_view = ExtResource("2_ilc74")
+packed_board_view = SubResource("PackedScene_s6vvy")
 packed_player_list_item = ExtResource("3_5qgqv")
 
 [node name="Background" type="Sprite2D" parent="."]
@@ -47,4 +62,5 @@ offset_right = 1553.0
 offset_bottom = 1036.0
 text = "Board Settings"
 
+[connection signal="pressed" from="Button" to="." method="leave_game"]
 [connection signal="pressed" from="Button2" to="." method="start_game"]

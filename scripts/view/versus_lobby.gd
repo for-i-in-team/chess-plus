@@ -24,6 +24,9 @@ func _ready():
 func start_game():
 	lobby.start_game(lobby.board)
 
+func leave_game():
+	lobby.leave_game()
+
 func setup_player_list():
 	for child in $PlayerList/List.get_children():
 		child.queue_free()
@@ -45,13 +48,16 @@ class Scene:
 	extends SceneManager.Scene
 
 	var lobby : ChessLobby = null
+	
+	func _init(_lobby:ChessLobby):
+		lobby = _lobby
 
 	func is_scene_ready(tree:SceneTree) -> bool:
-		return tree.get_root().get_node_or_null("/root/VersusLobby") != null
+		return tree.get_root().get_node_or_null("/root/versus_lobby") != null
 
 	func on_scene_loaded(tree:SceneTree):
 		if lobby != null:
-			tree.get_root().get_node_or_null("/root/ChessBoard").set_lobby(lobby)
+			tree.get_root().get_node_or_null("/root/versus_lobby").set_lobby(lobby)
 
 	func get_packed_scene() -> PackedScene:
 		return preload("res://scenes/screens/versus_lobby.tscn")

@@ -19,3 +19,8 @@ func change_settings():
 func quit_game():
 	get_tree().quit()
 
+class Scene:
+	extends SceneManager.Scene
+
+	func get_packed_scene() -> PackedScene:
+		return preload("res://scenes/screens/MainMenu.tscn")

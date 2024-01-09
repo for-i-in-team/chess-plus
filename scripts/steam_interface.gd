@@ -66,6 +66,7 @@ func _on_lobby_join_requested(lobby_id: int, friendID: int) -> void:
 func wait(seconds : float):
 	await(get_tree().create_timer(seconds).timeout)
 
+func leave_lobby():
 	if current_lobby != null:
 		Steam.leaveLobby(current_lobby._lobby_id)
 		current_lobby = null

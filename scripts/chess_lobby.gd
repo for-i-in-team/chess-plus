@@ -58,7 +58,8 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 	# Find the player object for the member that left
 	for player in player_list:
 		if player.id == member.id:
-			player_list.erase(player_list.find(player))
+			player_list.erase(player)
+			player_left.emit(player)
 			break
 
 func start_game(_board : ChessBoard):
@@ -104,6 +105,11 @@ func _on_turn_taken(option: ChessPiece.TurnOption):
 
 func kick(player:int):
 	print("Kicking player " + str(player))
+func leave_game():
+	SteamSession.leave_lobby()
+	SteamSession.chess_lobby = null
+	MainMenu.Scene.new().load_scene()
+
 
 func add_bot():
 	var color : ChessPiece.PieceColor = ChessPiece.PieceColor.black if len(player_list) > 0 and player_list[-1].color == ChessPiece.PieceColor.white else  ChessPiece.PieceColor.white
