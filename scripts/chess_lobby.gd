@@ -3,6 +3,7 @@ class_name ChessLobby
 var player_list : Array = []
 var board : ChessBoard
 var received_turns : Array = []
+var isHost : bool = false
 
 signal player_joined(player:ChessPlayer)
 signal player_left(player:ChessPlayer)
@@ -11,7 +12,7 @@ signal player_data_updated()
 
 static func start_lobby():
 	await(SteamSession.create_lobby())
-	return ChessLobby.new()
+	return ChessLobby.new(true)
 
 func update_player_color(id:int, color:ChessPiece.PieceColor):
 	for player in player_list:
@@ -20,8 +21,9 @@ func update_player_color(id:int, color:ChessPiece.PieceColor):
 			player_data_updated.emit()
 			break
 
-func _init():
+func _init(hosting:bool = false):
 	SteamSession.chess_lobby = self
+	isHost = hosting
 	for p in SteamSession.current_lobby.members:
 		player_list.append(ChessPlayer.new(p.id, p.name, ChessPiece.PieceColor.black))
 	player_list.append(ChessPlayer.new(Steam.getSteamID(), Steam.getFriendPersonaName(Steam.getSteamID()), ChessPiece.PieceColor.white))
