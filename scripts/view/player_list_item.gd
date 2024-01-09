@@ -8,14 +8,16 @@ const SPECTATOR = 2147483647
 var lobby: ChessLobby
 var player: ChessLobby.ChessPlayer
 
-func set_player(_lobby: ChessLobby, _player: ChessLobby.ChessPlayer):
+func set_player(_lobby: ChessLobby, _player: ChessLobby.ChessPlayer, isHost: bool):
 	self.lobby = _lobby
 	self.player = _player
-	update_display()
+	update_display(isHost)
 
-func update_display():
+func update_display(isHost:bool):
 	$Username.text = player.name
-	
+	if !isHost || player.id == SteamSession.getSteamID():
+		$KickButton.hide()
+
 	var select = $ColorSelect
 	select.clear()
 	select.add_item("Spectator", SPECTATOR)

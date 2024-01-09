@@ -7,10 +7,9 @@ extends Node2D
 var lobby : ChessLobby = null
 var board_view : ChessBoardView = null
 
-func _ready():
-	if lobby == null:
-		lobby = await ChessLobby.start_lobby()
-		lobby.board = TraditionalPieces.get_traditional_board_setup()
+func set_lobby(_lobby):
+	self.lobby = _lobby
+	lobby.board = TraditionalPieces.get_traditional_board_setup()
 	board_view = packed_board_view.instantiate()
 	board_view.set_board(lobby.board)
 	board_view.position = Vector2(board_view.position.x *1.5, board_view.position.y)
@@ -20,6 +19,7 @@ func _ready():
 	lobby.player_joined.connect(func(_player): setup_player_list())
 	lobby.player_left.connect(func(_player): setup_player_list())
 	lobby.player_data_updated.connect(func(): setup_player_list())
+	lobby.board_changed.connect(func(_board): board_view.set_board(_board))
 
 func start_game():
 	lobby.start_game(lobby.board)
@@ -32,7 +32,7 @@ func setup_player_list():
 		child.queue_free()
 	for player in lobby.player_list:
 		var player_list_item = packed_player_list_item.instantiate()
-		player_list_item.set_player(lobby, player)
+		player_list_item.set_player(lobby, player, lobby.isHost)
 		$PlayerList/List.add_child(player_list_item)
 	
 	var button : Button = Button.new()
@@ -41,8 +41,6 @@ func setup_player_list():
 	$PlayerList/List.add_child(button)
 	
 
-func set_lobby(_lobby:ChessLobby):
-	self.lobby = _lobby
 
 class Scene:
 	extends SceneManager.Scene
