@@ -63,17 +63,16 @@ func _on_player_left(member:SteamInterface.SteamLobbyMember):
 
 func start_game(_board : ChessBoard):
 	board = _board
-	# TODO Only create the AIs on the host
+	
 	load_game_scene()
 	# Accepts a board, which is sent to all players
 	BoardEvent.new(board).send(0)
+	
+	bind_board_events()
 
 	# Let everyone know what color they are
 	for p in player_list:
 		ColorEvent.new(p.color).send(p.id)
-
-	# Binds board events to communicate moves to other players
-	bind_board_events()
 
 func load_game_scene():
 	var player_color
@@ -167,7 +166,7 @@ class ColorEvent:
 	func _init(_color:ChessPiece.PieceColor):
 		color = _color
 
-	func receive(lobby:ChessLobby):
+	func receive(_lobby:ChessLobby):
 		print("Color Event Received " + color.name) # TODO Add color signal to make the board's input change color
 		#lobby.input.color = color
 
