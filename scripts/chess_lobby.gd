@@ -103,13 +103,13 @@ func _on_turn_taken(option: ChessPiece.TurnOption):
 	if not option in received_turns:
 		TurnEvent.new(option).send()
 
-func kick(player:int):
-	print("Kicking player " + str(player))
 func leave_game():
 	SteamSession.leave_lobby()
 	SteamSession.chess_lobby = null
 	MainMenu.Scene.new().load_scene()
 
+func kick(player:String):
+	KickEvent.new().send_to(player)
 
 func add_bot():
 	var color : ChessPiece.PieceColor = ChessPiece.PieceColor.black if len(player_list) > 0 and player_list[-1].color == ChessPiece.PieceColor.white else  ChessPiece.PieceColor.white
@@ -198,3 +198,10 @@ class LobbyDataEvent:
 	func receive(lobby:ChessLobby):
 		lobby.set_board(board)
 		lobby.set_players(player_list)
+
+
+class KickEvent:
+	extends ChessLobbyEvent
+
+	func receive(lobby:ChessLobby):
+		lobby.leave_game()
