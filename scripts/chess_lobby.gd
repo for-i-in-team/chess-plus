@@ -15,7 +15,7 @@ static func start_lobby():
 	await(SteamSession.create_lobby())
 	return ChessLobby.new(true)
 
-func update_player_color(id:int, color:ChessPiece.PieceColor):
+func update_player_color(id:String, color:ChessPiece.PieceColor):
 	for player in player_list:
 		if player.id == id:
 			player.color = color
@@ -27,7 +27,7 @@ func _init(hosting:bool = false):
 	isHost = hosting
 	for p in SteamSession.current_lobby.members:
 		player_list.append(ChessPlayer.new(p.id, p.name, ChessPiece.PieceColor.black))
-	player_list.append(ChessPlayer.new(Steam.getSteamID(), Steam.getFriendPersonaName(Steam.getSteamID()), ChessPiece.PieceColor.white))
+	player_list.append(ChessPlayer.new(SteamSession.getSteamID(), SteamSession.getUsername(), ChessPiece.PieceColor.white))
 	
 	# Bind events to track players in the lobby
 	SteamSession.current_lobby.member_joined.connect(_on_player_joined)
@@ -52,7 +52,7 @@ func _on_player_joined(member:SteamInterface.SteamLobbyMember):
 	player_joined.emit(player)
 	if isHost:
 		print("Sending " + str(player.id) + " lobby data event")
-		LobbyDataEvent.new(board, player_list).send(player.id)
+		LobbyDataEvent.new(board, player_list).send_to(player.id)
 
 func _on_player_left(member:SteamInterface.SteamLobbyMember):
 	# Find the player object for the member that left
@@ -66,19 +66,19 @@ func start_game(_board : ChessBoard):
 	
 	load_game_scene()
 	# Accepts a board, which is sent to all players
-	BoardEvent.new(board).send(0)
+	StartGameEvent.new(board).send()
 	
 	bind_board_events()
 
 	# Let everyone know what color they are
 	for p in player_list:
-		ColorEvent.new(p.color).send(p.id)
+		PlayerColorUpdatedEvent.new(p.color, p.id).send()
 
 func load_game_scene():
 	var player_color
 	var ai_colors : Array = []
 	for p in player_list:
-		if p.id == Steam.getSteamID():
+		if p.id == SteamSession.getSteamID():
 			player_color = p.color
 		if p is ChessBot and isHost:
 			ai_colors.append(p.color)
@@ -100,7 +100,7 @@ func bind_board_events():
 
 func _on_turn_taken(option: ChessPiece.TurnOption):
 	if not option in received_turns:
-		TurnEvent.new(option).send(0)
+		TurnEvent.new(option).send()
 
 func kick(player:int):
 	print("Kicking player " + str(player))
@@ -116,7 +116,7 @@ class ChessPlayer:
 
 	var color : ChessPiece.PieceColor
 
-	func _init(_id:int, _name:String, _color:ChessPiece.PieceColor):
+	func _init(_id:String, _name:String, _color:ChessPiece.PieceColor):
 		super(_id, _name)
 		color = _color
 
@@ -124,16 +124,21 @@ class ChessBot:
 	extends ChessPlayer
 
 	func _init(_color:ChessPiece.PieceColor):
-		super(-1, "Bot", _color)
+		super("bot", "Bot", _color)
+
+
 
 class ChessLobbyEvent:
-	func send(target:int):
+	func send():
+		SteamSession.current_lobby._send_p2p_packet(Utils.recursive_to_dict(self), SteamSession.TARGET_ALL)
+
+	func send_to(target:String):
 		SteamSession.current_lobby._send_p2p_packet(Utils.recursive_to_dict(self), target)
 
 	func receive(_lobby:ChessLobby):
 		pass
 
-class BoardEvent:
+class StartGameEvent:
 	extends ChessLobbyEvent
 
 	var board : ChessBoard
@@ -158,17 +163,21 @@ class TurnEvent:
 		lobby.received_turns.append(turn)
 		turn.apply_to_board(lobby.board)
 
-class ColorEvent:
+class PlayerColorUpdatedEvent:
 	extends ChessLobbyEvent
 
 	var color : ChessPiece.PieceColor
+	var player_id : String
 
-	func _init(_color:ChessPiece.PieceColor):
+	func _init(_color:ChessPiece.PieceColor, _player_id:String):
 		color = _color
+		player_id = _player_id
 
-	func receive(_lobby:ChessLobby):
-		print("Color Event Received " + color.name) # TODO Add color signal to make the board's input change color
-		#lobby.input.color = color
+	func receive(lobby:ChessLobby):
+		for player in lobby.player_list:
+			if player.id == player_id:
+				player.color = color
+				lobby.player_data_updated.emit()
 
 class LobbyDataEvent:
 	extends ChessLobbyEvent
