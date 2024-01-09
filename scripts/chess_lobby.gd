@@ -19,6 +19,7 @@ func update_player_color(id:String, color:ChessPiece.PieceColor):
 	for player in player_list:
 		if player.id == id:
 			player.color = color
+			PlayerColorUpdatedEvent.new(color, id).send()
 			player_data_updated.emit()
 			break
 
