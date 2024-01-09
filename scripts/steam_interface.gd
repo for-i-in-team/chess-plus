@@ -80,6 +80,7 @@ class Lobby:
 			Steam.createLobby(Steam.LOBBY_TYPE_FRIENDS_ONLY, 4)
 		else:
 			_lobby_id = id
+			created = true
 		Steam.lobby_created.connect(_on_lobby_created)
 		Steam.lobby_chat_update.connect(_on_lobby_chat_update)
 		Steam.lobby_message.connect(_on_lobby_message)
@@ -192,6 +193,7 @@ class Lobby:
 			if p.data['message'] == 'handshake_request':
 				_confirm_handshake()
 				print("Handshake Request from " + str(p.sender_id) + " received, acknowledgement sent")
+				p2p_initialized = true
 			elif p.data['message'] == 'handshake_ack':
 				p2p_initialized = true
 				print("Handshake Acknowledgement from " + str(p.sender_id) + " received, p2p initialized")
